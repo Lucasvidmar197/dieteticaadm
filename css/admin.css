@@ -1,0 +1,218 @@
+/* ─── ADMIN PANEL STYLES ─── */
+body {
+    background-color: #f4f7f6;
+}
+
+.admin-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    gap: 30px;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
+.admin-card h2 {
+    color: var(--verde-principal);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #eef2f0;
+    padding-bottom: 15px;
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--verde-claro);
+    box-shadow: 0 0 0 3px rgba(116, 178, 93, 0.2);
+}
+
+.file-upload-wrapper {
+    border: 2px dashed #cbd5e0;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    background: #f8fafc;
+}
+
+.file-upload-wrapper input[type="file"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.file-upload-wrapper small {
+    color: #718096;
+}
+
+.w-100 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.d-none {
+    display: none !important;
+}
+
+/* Tabla */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table th {
+    background-color: #f8fafc;
+    color: #4a5568;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.admin-table td {
+    vertical-align: middle;
+}
+
+.prod-img-preview {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #edf2f7;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: 0.2s;
+    font-size: 1.1rem;
+}
+
+.btn-icon.edit { color: var(--naranja-acento); }
+.btn-icon.edit:hover { background: #fff4ed; }
+
+.btn-icon.delete { color: #e53e3e; }
+.btn-icon.delete:hover { background: #fff5f5; }
+
+/* Toast override for admin */
+.toast.error {
+    background: #e53e3e;
+}
+.toast.success {
+    background: var(--verde-principal);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+/* ─── LOGIN OVERLAY ─── */
+.login-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(244, 247, 246, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.login-card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    color: #2d3748;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.login-header h2 span {
+    color: var(--verde-principal);
+}
+
+.login-header p {
+    color: #718096;
+    font-size: 0.95rem;
+}
+
+.login-card .form-group {
+    margin-bottom: 20px;
+}
+
+.login-card input {
+    background: #f8fafc;
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitamina D Dietética</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ─── NAV ─── -->
+    <nav>
+        <div class="nav-logo">Vitamina <span>D</span> Dietética</div>
+        <ul class="nav-links">
+            <li><a href="#categorias">Categorías</a></li>
+            <li><a href="#promos">Promos</a></li>
+            <li><a href="#pagos">Métodos de Pago</a></li>
+            <li><a href="#mapa">Visitanos</a></li>
+        </ul>
+        <button class="nav-carrito-btn">
+            <i class="fas fa-shopping-basket"></i>
+            Mi carrito
+            <span class="carrito-badge" id="badge">0</span>
+        </button>
+    </nav>
+
+    <!-- ─── HERO ─── -->
+    <header class="hero">
+        <img src="https://i.postimg.cc/QtvPGKbw/Gemini-Generated-Image-vjwhw1vjwhw1vjwh.png" alt="Banner Vitamina D Dietética">
+    </header>
+
+    <!-- ─── ABOUT ─── -->
+    <section class="about-section">
+        <h1>Tu rincón natural</h1>
+        <p>En <strong>Vitamina D Dietética</strong> nos apasiona promover un estilo de vida saludable. Ofrecemos la mejor selección de productos naturales, frutos secos, cereales, suplementos y opciones sin TACC. Nuestro objetivo es brindarte calidad y atención personalizada para que encuentres todo lo que necesitas para tu bienestar.</p>
+        <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20quiero%20hacer%20un%20pedido." target="_blank" class="btn-principal">
+            Hacer un pedido ahora
+        </a>
+    </section>
+
+    <!-- ─── CATEGORÍAS ─── -->
+    <section class="categorias-section" id="categorias">
+        <div class="section-header">
+            <h2>Nuestras Categorías</h2>
+            <p>Encontrá todo lo que necesitás para tu bienestar</p>
+        </div>
+        <div class="categorias-grid">
+            <div class="categoria-card" data-category="Frutos Secos">
+                <span class="icono">🥜</span>
+                <h3>Frutos Secos</h3>
+            </div>
+            <div class="categoria-card" data-category="Cereales">
+                <span class="icono">🌾</span>
+                <h3>Cereales</h3>
+            </div>
+            <div class="categoria-card" data-category="Suplementos">
+                <span class="icono">💊</span>
+                <h3>Suplementos</h3>
+            </div>
+            <div class="categoria-card" data-category="Sin TACC">
+                <span class="icono">🌿</span>
+                <h3>Sin TACC</h3>
+            </div>
+            <div class="categoria-card" data-category="Infusiones">
+                <span class="icono">🍵</span>
+                <h3>Infusiones</h3>
+            </div>
+            <div class="categoria-card" data-category="Snacks">
+                <span class="icono">🍫</span>
+                <h3>Snacks Saludables</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── MARCAS ─── -->
+    <section class="marcas-section">
+        <h2>Marcas con las que trabajamos</h2>
+        <div class="slider">
+            <div class="slide-track">
+                <div class="slide"><div class="slide-caja">Granja del Sol</div></div>
+                <div class="slide"><div class="slide-caja">Arcor Natura</div></div>
+                <div class="slide"><div class="slide-caja">Quaker</div></div>
+                <div class="slide"><div class="slide-caja">Knorr</div></div>
+                <div class="slide"><div class="slide-caja">La Asunción</div></div>
+                <div class="slide"><div class="slide-caja">Granja del Sol</div></div>
+                <div class="slide"><div class="slide-caja">Arcor Natura</div></div>
+                <div class="slide"><div class="slide-caja">Quaker</div></div>
+                <div class="slide"><div class="slide-caja">Knorr</div></div>
+                <div class="slide"><div class="slide-caja">La Asunción</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── PROMOS ─── -->
+    <section class="promos-section" id="promos">
+        <div class="section-header">
+            <h2>🔥 Promos de la semana</h2>
+            <p>Precios especiales en nuestros productos más populares</p>
+        </div>
+
+        <div class="search-container" style="max-width: 600px; margin: 0 auto 20px auto; display: flex; gap: 10px;">
+            <input type="search" id="buscador" placeholder="Buscar productos por nombre..." style="flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; font-family: 'Poppins', sans-serif;">
+        </div>
+
+        <div class="filtros-bar" id="filtros">
+            <button class="filtro-btn activo" data-filter="todos">Todos</button>
+            <!-- Las categorías dinámicas se insertan aquí -->
+        </div>
+
+        <div class="productos-grid" id="productos-grid"></div>
+    </section>
+
+    <!-- ─── MAPA ─── -->
+    <section class="mapa-section" id="mapa">
+        <h2>Visitanos</h2>
+        <p><i class="fas fa-map-marker-alt" style="color: var(--verde-principal);"></i> Nicolás Videla 147, B1878, Quilmes, PBA.</p>
+        <div class="map-container">
+            <iframe src="https://maps.google.com/maps?q=Nicol%C3%A1s%20Videla%20147,%20Quilmes,%20Provincia%20de%20Buenos%20Aires&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </section>
+
+    <!-- ─── MÉTODOS DE PAGO ─── -->
+    <section class="pagos-section" id="pagos">
+        <div class="section-header">
+            <h2>💳 Métodos de Pago</h2>
+            <p>Aceptamos múltiples formas de pago para tu comodidad</p>
+        </div>
+
+        <div class="pagos-grid">
+
+            <!-- Visa -->
+            <div class="pago-card">
+                <img class="pago-logo" src="https://i.postimg.cc/xCYwHk0p/52dea02fc76a2visa-nuevo-logo-623.jpg" alt="Visa" style="border-radius:6px;">
+                <div class="pago-nombre">Visa</div>
+                <div class="pago-detalle">Crédito y débito<br>Todos los bancos</div>
+            </div>
+
+            <!-- Mastercard -->
+            <div class="pago-card">
+                <svg class="pago-logo-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="30" cy="25" r="18" fill="#EB001B"/>
+                    <circle cx="50" cy="25" r="18" fill="#F79E1B"/>
+                    <path d="M40 10.8 A18 18 0 0 1 40 39.2 A18 18 0 0 1 40 10.8Z" fill="#FF5F00"/>
+                </svg>
+                <div class="pago-nombre">Mastercard</div>
+                <div class="pago-detalle">Crédito y débito<br>Todos los bancos</div>
+            </div>
+
+            <!-- Mercado Pago -->
+            <div class="pago-card">
+                <img class="pago-logo" src="https://i.postimg.cc/c1csDS2g/images.png" alt="Mercado Pago" style="width:110px;height:45px;">
+                <div class="pago-nombre">Mercado Pago</div>
+                <div class="pago-detalle">Tarjetas, QR<br>Dinero en cuenta</div>
+            </div>
+
+            <!-- Cuenta DNI — PROMO -->
+            <div class="pago-card promo-card">
+                <span class="pago-promo-badge">⭐ Promo</span>
+                <img class="pago-logo" src="https://i.postimg.cc/L54MdJwq/Cuenta-DNI-Banco-Provincia-Logo-Vector-svg.png" alt="Cuenta DNI" style="width:110px;height:50px;object-fit:contain;">
+                <div class="pago-nombre">Cuenta DNI</div>
+                <div class="pago-detalle">Banco Provincia<br><strong style="color:var(--naranja-acento)">¡Promoción especial!</strong></div>
+            </div>
+
+            <!-- BBVA — PROMO -->
+            <div class="pago-card promo-card">
+                <span class="pago-promo-badge">⭐ Promo</span>
+                <img class="pago-logo" src="https://i.postimg.cc/cCLP9Vtn/bbva-logo-portada.jpg" alt="BBVA" style="border-radius:6px;">
+                <div class="pago-nombre">BBVA</div>
+                <div class="pago-detalle">Tarjetas BBVA<br><strong style="color:var(--naranja-acento)">¡Promoción especial!</strong></div>
+            </div>
+
+            <!-- Cuotas -->
+            <div class="pago-card">
+                <svg class="pago-logo-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="80" height="50" rx="8" fill="#296d36"/>
+                    <text x="40" y="20" font-family="Arial" font-weight="900" font-size="13" fill="white" text-anchor="middle">HASTA</text>
+                    <text x="40" y="36" font-family="Arial" font-weight="900" font-size="16" fill="#e8c61a" text-anchor="middle">12 CUOTAS</text>
+                </svg>
+                <div class="pago-nombre">Cuotas sin interés</div>
+                <div class="pago-detalle">Hasta 12 cuotas<br>con tarjetas seleccionadas</div>
+            </div>
+
+        </div>
+
+        <!-- chips informativos -->
+        <div class="pagos-info-row">
+            <div class="pago-chip"><i class="fas fa-credit-card"></i> Crédito y débito</div>
+            <div class="pago-chip"><i class="fas fa-university"></i> Todos los bancos</div>
+            <div class="pago-chip"><i class="fas fa-qrcode"></i> Pago con QR</div>
+            <div class="pago-chip"><i class="fas fa-shield-alt"></i> Pago seguro</div>
+            <div class="pago-chip"><i class="fas fa-calendar-check"></i> Hasta 12 cuotas</div>
+        </div>
+    </section>
+
+    <!-- ─── WHATSAPP ─── -->
+    <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20tengo%20una%20consulta." class="whatsapp-flotante" target="_blank" title="Envianos un mensaje">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- ─── FOOTER ─── -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="footer-brand">Vitamina <span>D</span> Dietética</div>
+                <p>Tu tienda de productos naturales y saludables en Quilmes, Buenos Aires.</p>
+                <div class="footer-social">
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/5491144468486" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="mailto:vitamitaD@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Navegación</h4>
+                <a href="#categorias">Categorías</a>
+                <a href="#promos">Promos</a>
+                <a href="#mapa">Cómo llegar</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <a href="mailto:vitamitaD@gmail.com"><i class="fas fa-envelope" style="margin-right:6px;"></i> vitamitaD@gmail.com</a>
+                <a href="https://wa.me/5491144468486" target="_blank"><i class="fab fa-whatsapp" style="margin-right:6px;"></i> +54 9 11 4446-8486</a>
+                <p><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i> Nicolás Videla 147, Quilmes</p>
+            </div>
+            <div class="footer-col">
+                <h4>Horarios</h4>
+                <p>Lunes a Viernes: 9:00 – 19:00</p>
+                <p>Sábados: 9:00 – 14:00</p>
+                <p>Domingos: Cerrado</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 <strong>Vitamina D Dietética</strong> — Todos los derechos reservados.</p>
+            <p style="margin-top:4px;">Diseño y desarrollo por <strong>Vidmar &amp; Guerrero</strong></p>
+        </div>
+    </footer>
+
+    <!-- ─── CARRITO PANEL ─── -->
+    <div class="carrito-overlay" id="carritoOverlay"></div>
+    <div class="carrito-panel" id="carritoPanel">
+        <div class="carrito-header">
+            <h3>🛒 Mi Carrito</h3>
+            <button class="carrito-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="carrito-items" id="carritoItems">
+            <div class="carrito-vacio" id="carritoVacio">
+                <i class="fas fa-shopping-basket"></i>
+                <p>Tu carrito está vacío</p>
+            </div>
+        </div>
+        <div class="carrito-footer">
+            <div class="carrito-total">
+                <span>Total</span>
+                <strong id="carritoTotal">$0</strong>
+            </div>
+            <button class="btn-comprar-todo">
+                <i class="fab fa-whatsapp"></i> Generar link de pago
+            </button>
+        </div>
+    </div>
+
+    <script src="js/script.js" type="module" defer></script>
+</body>
+</html>

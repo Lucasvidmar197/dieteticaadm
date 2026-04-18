@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Vitamina D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- ─── LOGIN OVERLAY ─── -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Vitamina <span>D</span></h2>
+                <p>Panel de Administración</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="adminEmail" required placeholder="admin@dietetica.com">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword"><i class="fas fa-lock"></i> Contraseña</label>
+                    <input type="password" id="adminPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-principal w-100" id="loginBtn">
+                    <span id="loginBtnText">Ingresar</span>
+                    <i class="fas fa-spinner fa-spin d-none" id="loginSpinner"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── NAV ─── -->
+    <nav id="adminNav" style="display: none;">
+        <div class="nav-logo">Vitamina <span>D</span> - Admin</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Ver Tienda <i class="fas fa-external-link-alt"></i></a></li>
+            <li><button id="logoutBtn" class="btn-icon" style="color: #e53e3e; font-size: 1rem;"><i class="fas fa-sign-out-alt"></i> Salir</button></li>
+        </ul>
+    </nav>
+
+    <div class="admin-container" id="mainAdminPanel" style="display: none;">
+        <!-- Formulario de Carga -->
+        <section class="admin-card">
+            <h2><i class="fas fa-plus-circle"></i> Cargar Nuevo Producto</h2>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre del Producto</label>
+                    <input type="text" id="nombre" required placeholder="Ej: Almendras Tostadas">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="precio">Precio ($)</label>
+                        <input type="number" id="precio" required placeholder="Ej: 1500" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoría</label>
+                        <select id="categoria" required>
+                            <option value="" disabled selected>Seleccione una categoría</option>
+                            <option value="Frutos Secos">Frutos Secos</option>
+                            <option value="Cereales">Cereales</option>
+                            <option value="Suplementos">Suplementos</option>
+                            <option value="Sin TACC">Sin TACC</option>
+                            <option value="Infusiones">Infusiones</option>
+                            <option value="Snacks">Snacks Saludables</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción breve</label>
+                    <input type="text" id="descripcion" required placeholder="Ej: 250g. Calidad premium.">
+                </div>
+
+                <div class="form-group">
+                    <label for="imagenUrlInput">URL de la Imagen</label>
+                    <input type="url" id="imagenUrlInput" required placeholder="Ej: https://i.postimg.cc/mi-imagen.jpg">
+                    <small style="color: #718096; display: block; margin-top: 5px;">Pegá un link directo a la imagen. Podés usar servicios como Postimages.org</small>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-principal w-100" id="submitBtn">
+                        <span id="btnText">Guardar Producto</span>
+                        <i class="fas fa-spinner fa-spin d-none" id="spinner"></i>
+                    </button>
+                    <button type="button" class="btn-principal d-none" id="cancelEditBtn" style="background-color: #718096;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Listado de Productos -->
+        <section class="admin-card">
+            <h2><i class="fas fa-list"></i> Productos Cargados</h2>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosTableBody">
+                        <!-- Llenado dinámicamente con JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="tableLoader" class="text-center py-3">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--verde-principal)"></i>
+                <p>Cargando productos...</p>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
