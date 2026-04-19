@@ -62,12 +62,7 @@
                         <label for="categoria">Categoría</label>
                         <select id="categoria" required>
                             <option value="" disabled selected>Seleccione una categoría</option>
-                            <option value="Frutos Secos">Frutos Secos</option>
-                            <option value="Cereales">Cereales</option>
-                            <option value="Suplementos">Suplementos</option>
-                            <option value="Sin TACC">Sin TACC</option>
-                            <option value="Infusiones">Infusiones</option>
-                            <option value="Snacks">Snacks Saludables</option>
+                            <!-- Llenado dinámicamente con JS -->
                         </select>
                     </div>
                 </div>
@@ -93,6 +88,52 @@
                     </button>
                 </div>
             </form>
+        </section>
+
+        <!-- Gestión de Categorías -->
+        <section class="admin-card">
+            <h2><i class="fas fa-tags"></i> Gestión de Categorías</h2>
+            
+            <form id="categoriaForm" style="margin-bottom: 20px;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="catNombre">Nombre de la Categoría</label>
+                        <input type="text" id="catNombre" required placeholder="Ej: Frutos Secos">
+                    </div>
+                    <div class="form-group">
+                        <label for="catIcono">Ícono (Emoji)</label>
+                        <input type="text" id="catIcono" required placeholder="Ej: 🥜">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-principal w-100" id="catSubmitBtn">
+                        <span id="catBtnText">Guardar Categoría</span>
+                        <i class="fas fa-spinner fa-spin d-none" id="catSpinner"></i>
+                    </button>
+                    <button type="button" class="btn-principal d-none" id="catCancelEditBtn" style="background-color: #718096;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Ícono</th>
+                            <th>Nombre</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriasTableBody">
+                        <!-- Llenado dinámicamente con JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="catTableLoader" class="text-center py-3">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--verde-principal)"></i>
+                <p>Cargando categorías...</p>
+            </div>
         </section>
 
         <!-- Listado de Productos -->

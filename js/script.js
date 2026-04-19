@@ -16,6 +16,7 @@ const db = getFirestore(app);
 
 // ─── ESTADO GLOBAL ───
 let productos = [];
+let categoriasDB = [];
 let carrito = {};
 let cantidades = {};
 let currentFilter = 'todos';
@@ -66,12 +67,10 @@ function renderProductos(lista) {
 // ─── FILTROS Y BÚSQUEDA ───
 function generarFiltros() {
     const filtrosBar = document.getElementById('filtros');
-    const categorias = [...new Set(productos.map(p => p.categoria))].filter(Boolean); // Remover undefined/null
     
     let html = `<button class="filtro-btn ${currentFilter === 'todos' ? 'activo' : ''}" data-filter="todos">Todos</button>`;
-    categorias.forEach(cat => {
-        const icon = getCategoryIcon(cat);
-        html += `<button class="filtro-btn ${currentFilter === cat ? 'activo' : ''}" data-filter="${cat}">${icon} ${cat}</button>`;
+    categoriasDB.forEach(cat => {
+        html += `<button class="filtro-btn ${currentFilter === cat.nombre ? 'activo' : ''}" data-filter="${cat.nombre}">${cat.icono || '✨'} ${cat.nombre}</button>`;
     });
     filtrosBar.innerHTML = html;
 
@@ -83,16 +82,28 @@ function generarFiltros() {
     });
 }
 
-function getCategoryIcon(cat) {
-    const icons = {
-        'Frutos Secos': '🥜',
-        'Cereales': '🌾',
-        'Suplementos': '💊',
-        'Sin TACC': '🌿',
-        'Infusiones': '🍵',
-        'Snacks': '🍫'
-    };
-    return icons[cat] || '✨';
+function generarGridCategorias() {
+    const grid = document.getElementById('categorias-grid');
+    if (!grid) return;
+    
+    if (categoriasDB.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #666;">No hay categorías disponibles.</p>';
+        return;
+    }
+
+    grid.innerHTML = categoriasDB.map(cat => `
+        <div class="categoria-card" data-category="${cat.nombre}">
+            <span class="icono">${cat.icono || '✨'}</span>
+            <h3>${cat.nombre}</h3>
+        </div>
+    `).join('');
+
+    // Attach event listeners
+    document.querySelectorAll('.categoria-card').forEach(card => {
+        card.addEventListener('click', () => {
+            filtrarCategoria(card.dataset.category);
+        });
+    });
 }
 
 function filtrarProductos(cat, btn) {
@@ -246,6 +257,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('productos-grid');
     grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Cargando productos...</p></div>';
 
+    // Fetch Categorias
+    onSnapshot(collection(db, "categorias"), (snapshot) => {
+        categoriasDB = [];
+        snapshot.forEach((doc) => {
+            categoriasDB.push({ id: doc.id, ...doc.data() });
+        });
+        generarFiltros();
+        generarGridCategorias();
+        // Si los productos ya cargaron, re-renderizamos para que se vean los filtros
+        if (productos.length > 0) {
+            filtrarProductos(currentFilter, null);
+        }
+    }, (error) => {
+        console.error("Error obteniendo categorias: ", error);
+    });
+
     // Fetch Firebase
     onSnapshot(collection(db, "productos"), (snapshot) => {
         productos = [];
@@ -273,13 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.nav-carrito-btn').addEventListener('click', toggleCarrito);
     document.getElementById('carritoOverlay').addEventListener('click', toggleCarrito);
     document.querySelector('.carrito-close').addEventListener('click', toggleCarrito);
-
-    // Category cards filter
-    document.querySelectorAll('.categoria-card').forEach(card => {
-        card.addEventListener('click', () => {
-            filtrarCategoria(card.dataset.category);
-        });
-    });
 
     // Product grid actions
     document.getElementById('productos-grid').addEventListener('click', (e) => {

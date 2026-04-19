@@ -38,6 +38,18 @@ let localProductos = {};
 let editMode = false;
 let currentEditId = null;
 
+// Variables de Categorías
+const catForm = document.getElementById('categoriaForm');
+const catBtnText = document.getElementById('catBtnText');
+const catSpinner = document.getElementById('catSpinner');
+const catTableBody = document.getElementById('categoriasTableBody');
+const catTableLoader = document.getElementById('catTableLoader');
+const catCancelEditBtn = document.getElementById('catCancelEditBtn');
+
+let localCategorias = {};
+let catEditMode = false;
+let currentCatEditId = null;
+
 // Toast Helper
 window.showToast = function(msg, type = "success") {
     const t = document.createElement('div');
@@ -53,6 +65,7 @@ onAuthStateChanged(auth, (user) => {
         loginOverlay.style.display = 'none';
         mainAdminPanel.style.display = 'grid';
         adminNav.style.display = 'flex';
+        cargarCategorias();
         cargarProductos();
     } else {
         loginOverlay.style.display = 'flex';
@@ -204,6 +217,9 @@ function cargarProductos() {
                     <button class="btn-icon edit" onclick="prepararEdicion('${id}')" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
+                    <button class="btn-icon duplicate" style="color: #3182ce;" onclick="duplicarProducto('${id}')" title="Duplicar">
+                        <i class="fas fa-copy"></i>
+                    </button>
                     <button class="btn-icon delete" onclick="eliminarProducto('${id}')" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -228,6 +244,152 @@ window.eliminarProducto = async (id) => {
         showToast("Producto eliminado", "success");
     } catch (error) {
         console.error("Error eliminando producto: ", error);
+        showToast("Error al eliminar", "error");
+    }
+};
+
+// ─── DUPLICAR PRODUCTO ───
+window.duplicarProducto = (id) => {
+    const prod = localProductos[id];
+    if (!prod) return;
+
+    editMode = false;
+    currentEditId = null;
+
+    // Poblar form
+    document.getElementById('nombre').value = prod.nombre + " (Copia)";
+    document.getElementById('precio').value = prod.precio;
+    // Si la categoría existe en el select, se seleccionará automáticamente.
+    document.getElementById('categoria').value = prod.categoria;
+    document.getElementById('descripcion').value = prod.desc;
+    document.getElementById('imagenUrlInput').value = prod.imagenUrl;
+    
+    // UI
+    document.getElementById('btnText').textContent = "Guardar Producto";
+    cancelEditBtn.classList.remove('d-none');
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast("Producto copiado al formulario. Modificalo y guardá.", "success");
+};
+
+// ─── GESTIÓN DE CATEGORÍAS ───
+function cargarCategorias() {
+    onSnapshot(collection(db, "categorias"), (snapshot) => {
+        catTableLoader.style.display = "none";
+        catTableBody.innerHTML = "";
+        localCategorias = {};
+        
+        const selectCat = document.getElementById('categoria');
+        const currentValue = selectCat.value; // Guardar valor actual por si está editando
+        selectCat.innerHTML = '<option value="" disabled selected>Seleccione una categoría</option>';
+
+        if (snapshot.empty) {
+            catTableBody.innerHTML = `<tr><td colspan="3" class="text-center">No hay categorías cargadas.</td></tr>`;
+            return;
+        }
+
+        snapshot.forEach((docSnap) => {
+            const cat = docSnap.data();
+            const id = docSnap.id;
+            localCategorias[id] = cat;
+
+            // Llenar select de productos
+            const option = document.createElement('option');
+            option.value = cat.nombre;
+            option.textContent = cat.nombre;
+            selectCat.appendChild(option);
+
+            // Llenar tabla de categorías
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-size: 1.5rem;">${cat.icono}</td>
+                <td><strong>${cat.nombre}</strong></td>
+                <td>
+                    <button class="btn-icon edit" onclick="prepararEdicionCategoria('${id}')" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon delete" onclick="eliminarCategoria('${id}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            catTableBody.appendChild(tr);
+        });
+
+        if (currentValue) {
+            selectCat.value = currentValue;
+        }
+    }, (error) => {
+        console.error("Error al obtener categorías: ", error);
+        showToast("Error al cargar categorías", "error");
+    });
+}
+
+catForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById('catNombre').value;
+    const icono = document.getElementById('catIcono').value;
+
+    catBtnText.textContent = catEditMode ? "Actualizando..." : "Guardando...";
+    catSpinner.classList.remove('d-none');
+    catForm.querySelector('button[type="submit"]').disabled = true;
+    catCancelEditBtn.disabled = true;
+
+    try {
+        if (catEditMode) {
+            await updateDoc(doc(db, "categorias", currentCatEditId), { nombre, icono });
+            showToast("Categoría actualizada", "success");
+            catCancelEditBtn.click();
+        } else {
+            await addDoc(collection(db, "categorias"), { nombre, icono });
+            showToast("Categoría creada exitosamente", "success");
+            catForm.reset();
+        }
+    } catch (error) {
+        console.error("Error guardando categoría: ", error);
+        showToast("Error al guardar: " + error.message, "error");
+    } finally {
+        catBtnText.textContent = catEditMode ? "Actualizar Categoría" : "Guardar Categoría";
+        catSpinner.classList.add('d-none');
+        catForm.querySelector('button[type="submit"]').disabled = false;
+        catCancelEditBtn.disabled = false;
+    }
+});
+
+catCancelEditBtn.addEventListener('click', () => {
+    catEditMode = false;
+    currentCatEditId = null;
+    catForm.reset();
+    document.getElementById('catBtnText').textContent = "Guardar Categoría";
+    catCancelEditBtn.classList.add('d-none');
+});
+
+window.prepararEdicionCategoria = (id) => {
+    const cat = localCategorias[id];
+    if (!cat) return;
+
+    catEditMode = true;
+    currentCatEditId = id;
+
+    document.getElementById('catNombre').value = cat.nombre;
+    document.getElementById('catIcono').value = cat.icono;
+    
+    document.getElementById('catBtnText').textContent = "Actualizar Categoría";
+    catCancelEditBtn.classList.remove('d-none');
+    
+    // Scroll to the category form, which is just above the product list. It's the first admin-card typically or we just scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.eliminarCategoria = async (id) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar esta categoría? Esto no eliminará los productos de esta categoría.")) return;
+
+    try {
+        await deleteDoc(doc(db, "categorias", id));
+        showToast("Categoría eliminada", "success");
+    } catch (error) {
+        console.error("Error eliminando categoría: ", error);
         showToast("Error al eliminar", "error");
     }
 };
