@@ -21,31 +21,43 @@ let carrito = {};
 let cantidades = {};
 let currentFilter = 'todos';
 let searchTerm = '';
+let productosFiltrados = [];
+let productosMostrados = 0;
+const PRODUCTOS_POR_PAGINA = 24;
 
 // ─── RENDER PRODUCTOS ───
-function renderProductos(lista) {
+function renderProductos(lista, append = false) {
     const grid = document.getElementById('productos-grid');
-    grid.innerHTML = '';
+    const loadMoreContainer = document.getElementById('load-more-container');
     
-    if(lista.length === 0) {
+    if (!append) {
+        grid.innerHTML = '';
+        productosMostrados = 0;
+    }
+    
+    if (lista.length === 0 && !append) {
         grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #666; font-size: 1.1rem; padding: 40px;">No se encontraron productos.</p>';
+        if (loadMoreContainer) loadMoreContainer.style.display = 'none';
         return;
     }
 
-    lista.forEach(p => {
+    const productosARenderizar = lista.slice(productosMostrados, productosMostrados + PRODUCTOS_POR_PAGINA);
+    let html = '';
+
+    productosARenderizar.forEach(p => {
         const enCarrito = carrito[p.id];
         if (!cantidades[p.id]) cantidades[p.id] = 1;
 
-        grid.innerHTML += `
+        html += `
         <div class="producto-card" data-id="${p.id}" data-cat="${p.categoria}">
             <div class="producto-img" style="padding: 0;">
-                <img src="${p.imagenUrl}" alt="${p.nombre}" loading="lazy" style="width:100%; height:100%; object-fit:cover; border-radius: 12px 12px 0 0;">
+                <img src="${p.imagenUrl || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" alt="${p.nombre}" loading="lazy" style="width:100%; height:100%; object-fit:cover; border-radius: 12px 12px 0 0;">
                 ${p.promo ? '<span class="badge-promo">🔥 Promo</span>' : ''}
             </div>
             <div class="producto-body">
-                <div class="producto-categoria-tag">${p.categoria}</div>
+                <div class="producto-categoria-tag">${p.categoria || 'Varios'}</div>
                 <div class="producto-nombre">${p.nombre}</div>
-                <div class="producto-desc">${p.desc}</div>
+                <div class="producto-desc">${p.desc || ''}</div>
                 <div class="producto-precio-row">
                     <span class="precio-actual">$${p.precio.toLocaleString('es-AR')}</span>
                     ${p.precioAntes ? `<span class="precio-tachado">$${p.precioAntes.toLocaleString('es-AR')}</span>` : ''}
@@ -62,6 +74,22 @@ function renderProductos(lista) {
             </div>
         </div>`;
     });
+
+    if (append) {
+        grid.insertAdjacentHTML('beforeend', html);
+    } else {
+        grid.innerHTML = html;
+    }
+
+    productosMostrados += productosARenderizar.length;
+
+    if (loadMoreContainer) {
+        if (productosMostrados < lista.length) {
+            loadMoreContainer.style.display = 'block';
+        } else {
+            loadMoreContainer.style.display = 'none';
+        }
+    }
 }
 
 // ─── FILTROS Y BÚSQUEDA ───
@@ -115,17 +143,17 @@ function filtrarProductos(cat, btn) {
         currentFilter = cat || currentFilter;
     }
 
-    let filtrados = productos;
+    productosFiltrados = productos;
     
     if (currentFilter !== 'todos') {
-        filtrados = filtrados.filter(p => p.categoria === currentFilter);
+        productosFiltrados = productosFiltrados.filter(p => p.categoria === currentFilter);
     }
     
     if (searchTerm) {
-        filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+        productosFiltrados = productosFiltrados.filter(p => p.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
     }
     
-    renderProductos(filtrados);
+    renderProductos(productosFiltrados, false);
 }
 
 function filtrarCategoria(cat) {
@@ -293,6 +321,14 @@ document.addEventListener('DOMContentLoaded', () => {
         buscador.addEventListener('input', (e) => {
             searchTerm = e.target.value;
             filtrarProductos(currentFilter, null);
+        });
+    }
+    
+    // Boton Cargar Más
+    const btnLoadMore = document.getElementById('btn-load-more');
+    if (btnLoadMore) {
+        btnLoadMore.addEventListener('click', () => {
+            renderProductos(productosFiltrados, true);
         });
     }
 

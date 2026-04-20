@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Importar Productos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+  h1 { font-size: 1.6rem; color: #38bdf8; margin-bottom: 4px; }
+  .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
+  .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #334155; }
+  h2 { font-size: 1.1rem; color: #e2e8f0; margin-bottom: 14px; }
+  label { display: block; font-size: 0.82rem; color: #94a3b8; margin-bottom: 5px; }
+  input[type=email], input[type=password] {
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #334155;
+    background: #0f172a; color: #e2e8f0; font-size: 0.95rem; margin-bottom: 12px;
+  }
+  select { padding: 7px 10px; border-radius: 6px; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; font-size: 0.9rem; }
+  .btn { padding: 11px 24px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600; }
+  .btn-primary { background: #38bdf8; color: #0f172a; }
+  .btn-primary:hover { background: #7dd3fc; }
+  .btn-success { background: #22c55e; color: #fff; width: 100%; font-size: 1rem; padding: 14px; margin-top: 16px; }
+  .btn-success:hover:not(:disabled) { background: #16a34a; }
+  .btn-success:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+  .btn-sm { background: transparent; border: 1px solid #38bdf8; color: #38bdf8; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+  .btn-sm:hover { background: #38bdf820; }
+  .info { font-size: 0.83rem; color: #94a3b8; margin-top: 6px; }
+  .badge { display: inline-block; background: #0ea5e940; color: #38bdf8; border-radius: 999px; padding: 3px 12px; font-size: 0.8rem; }
+  .map-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #0f172a; }
+  .map-row:hover { background: #0f172a30; }
+  .marca-label { min-width: 200px; font-size: 0.88rem; color: #cbd5e1; }
+  .map-row select { flex: 1; }
+  .scroll-box { max-height: 460px; overflow-y: auto; padding-right: 6px; margin-top: 12px; }
+  .scroll-box::-webkit-scrollbar { width: 5px; }
+  .scroll-box::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  .global-row { display: flex; gap: 10px; align-items: center; padding: 12px; background: #0f172a; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .global-row select { min-width: 200px; }
+  .bar-track { background: #0f172a; border-radius: 999px; height: 22px; overflow: hidden; margin-top: 14px; }
+  .bar-fill { background: linear-gradient(90deg,#38bdf8,#22c55e); height: 100%; width: 0%; transition: width 0.2s; border-radius: 999px; }
+  .bar-label { text-align: center; font-size: 0.82rem; color: #94a3b8; margin-top: 5px; }
+  #log { margin-top: 14px; max-height: 220px; overflow-y: auto; font-size: 0.83rem; line-height: 1.7; }
+  #log p { padding: 2px 0; }
+  .log-ok { color: #22c55e; }
+  .log-err { color: #f87171; }
+  .log-info { color: #38bdf8; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .hidden { display: none; }
+  #debugBox { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-top: 12px; font-size: 0.8rem; color: #94a3b8; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<h1>🚀 Importador Masivo de Productos</h1>
+<p class="subtitle">Leé el Excel → Asigná categorías → Importá a Firestore</p>
+
+<!-- PASO 1: LOGIN -->
+<div class="card" id="cardLogin">
+  <h2>🔐 Paso 1 — Iniciar sesión en Firebase</h2>
+  <div class="row2">
+    <div>
+      <label>Email admin</label>
+      <input type="email" id="email" placeholder="admin@ejemplo.com" autocomplete="email">
+    </div>
+    <div>
+      <label>Contraseña</label>
+      <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+  </div>
+  <button class="btn btn-primary" id="btnLogin">Iniciar sesión</button>
+  <p id="loginMsg" class="info" style="margin-top:8px; color:#f87171;"></p>
+</div>
+
+<!-- PASO 2: EXCEL -->
+<div class="card hidden" id="cardExcel">
+  <h2>📂 Paso 2 — Seleccioná el archivo Excel</h2>
+  <p class="info" id="catStatus">Cargando categorías de Firestore...</p>
+  <br>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" style="color:#e2e8f0; margin-top:6px;">
+  <p class="info" id="excelStatus" style="margin-top:8px;"></p>
+</div>
+
+<!-- PASO 3: MAPEO + IMPORTAR -->
+<div class="card hidden" id="cardMapeo">
+  <h2>🗂️ Paso 3 — Asigná categoría a cada marca</h2>
+  <span class="badge" id="badgeAsignadas">0/0 marcas con categoría</span>
+
+  <div class="global-row">
+    <span style="font-size:0.85rem; white-space:nowrap; color:#94a3b8;">Asignar todas a:</span>
+    <select id="selGlobal"><option value="">-- elegí una categoría --</option></select>
+    <button class="btn-sm" id="btnGlobal">Aplicar a todas</button>
+    <span style="font-size:0.83rem; color:#64748b; margin-left:8px;">Podés cambiar individualmente después</span>
+  </div>
+
+  <div class="scroll-box">
+    <div id="listaMapeo"></div>
+  </div>
+
+  <div id="debugBox">📊 Productos listos para importar: <strong id="debugCount">0</strong></div>
+
+  <button class="btn btn-success" id="btnImportar">⬆️ Importar a Firestore</button>
+
+  <div class="bar-track hidden" id="barTrack">
+    <div class="bar-fill" id="barFill"></div>
+  </div>
+  <div class="bar-label hidden" id="barLabel"></div>
+  <div id="log"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyALovDYcyU5nr5bNGalRaCPTdnejns_avg",
+    authDomain: "vitamita-d.firebaseapp.com",
+    projectId: "vitamita-d",
+    storageBucket: "vitamita-d.firebasestorage.app",
+    messagingSenderId: "1055676055964",
+    appId: "1:1055676055964:web:37ed8d6c3cfac62ccd0859"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const auth = getAuth(app);
+
+// Estado global
+let productosExcel = [];
+let categoriasFS   = [];
+let marcaMap       = {};
+
+// ── Helpers UI ──
+const $ = id => document.getElementById(id);
+const log = (msg, cls='log-info') => {
+  const p = document.createElement('p');
+  p.className = cls;
+  p.textContent = msg;
+  $('log').prepend(p);
+};
+
+// ── LOGIN ──
+$('btnLogin').addEventListener('click', async () => {
+  const email = $('email').value.trim();
+  const pass  = $('pass').value;
+  $('loginMsg').textContent = 'Conectando...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    $('cardLogin').classList.add('hidden');
+    $('cardExcel').classList.remove('hidden');
+    $('loginMsg').textContent = '';
+    await cargarCategorias();
+  } catch(e) {
+    $('loginMsg').textContent = '❌ ' + e.message;
+  }
+});
+
+// Enter en password = login
+$('pass').addEventListener('keydown', e => { if(e.key==='Enter') $('btnLogin').click(); });
+
+// ── CARGAR CATEGORÍAS ──
+async function cargarCategorias() {
+  try {
+    const snap = await getDocs(collection(db, 'categorias'));
+    categoriasFS = [];
+    snap.forEach(d => categoriasFS.push({ id: d.id, ...d.data() }));
+    $('catStatus').textContent = `✅ ${categoriasFS.length} categorías cargadas`;
+    $('catStatus').style.color = '#22c55e';
+
+    // Poblar select global
+    const opts = categoriasFS.map(c => `<option value="${c.nombre}">${c.icono||''} ${c.nombre}</option>`).join('');
+    $('selGlobal').innerHTML = '<option value="">-- elegí una categoría --</option>' + opts;
+  } catch(e) {
+    $('catStatus').textContent = '❌ Error cargando categorías: ' + e.message;
+    $('catStatus').style.color = '#f87171';
+  }
+}
+
+// ── LEER EXCEL ──
+$('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  $('excelStatus').textContent = 'Leyendo archivo...';
+
+  const reader = new FileReader();
+  reader.onerror = () => { $('excelStatus').textContent = '❌ Error leyendo el archivo'; };
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      // Filtrar filas válidas (con Marca, Artículo y Precio)
+      productosExcel = data.slice(1).filter(r => r[0] && r[1] && r[2] != null);
+      $('excelStatus').textContent = `✅ ${productosExcel.length} productos leídos`;
+      $('excelStatus').style.color = '#22c55e';
+      construirMapeo();
+    } catch(e) {
+      $('excelStatus').textContent = '❌ Error procesando Excel: ' + e.message;
+      $('excelStatus').style.color = '#f87171';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+// ── CONSTRUIR TABLA DE MAPEO ──
+function construirMapeo() {
+  const marcas = [...new Set(productosExcel.map(r => String(r[0]).trim()))].sort();
+  marcaMap = {};
+  marcas.forEach(m => marcaMap[m] = '');
+
+  const lista = $('listaMapeo');
+  const opts = categoriasFS.map(c => `<option value="${c.nombre}">${c.icono||''} ${c.nombre}</option>`).join('');
+
+  lista.innerHTML = marcas.map(m => `
+    <div class="map-row">
+      <span class="marca-label">${m}</span>
+      <select class="sel-marca" data-marca="${m}">
+        <option value="">-- Sin categoría (omitir) --</option>
+        ${opts}
+      </select>
+    </div>
+  `).join('');
+
+  // Event listeners en cada select
+  lista.querySelectorAll('.sel-marca').forEach(sel => {
+    sel.addEventListener('change', () => {
+      marcaMap[sel.dataset.marca] = sel.value;
+      actualizarBadge();
+    });
+  });
+
+  $('cardMapeo').classList.remove('hidden');
+  actualizarBadge();
+}
+
+function actualizarBadge() {
+  const asig = Object.values(marcaMap).filter(v => v !== '').length;
+  const total = Object.keys(marcaMap).length;
+  $('badgeAsignadas').textContent = `${asig}/${total} marcas con categoría`;
+
+  // Contar productos listos
+  const listos = productosExcel.filter(r => marcaMap[String(r[0]).trim()]).length;
+  $('debugCount').textContent = listos;
+}
+
+// ── ASIGNAR TODAS ──
+$('btnGlobal').addEventListener('click', () => {
+  const cat = $('selGlobal').value;
+  if (!cat) return;
+  document.querySelectorAll('.sel-marca').forEach(sel => {
+    sel.value = cat;
+    marcaMap[sel.dataset.marca] = cat;
+  });
+  actualizarBadge();
+});
+
+// ── IMPORTAR ──
+$('btnImportar').addEventListener('click', async () => {
+  $('log').innerHTML = '';
+
+  const lista = productosExcel.filter(r => marcaMap[String(r[0]).trim()]);
+
+  if (lista.length === 0) {
+    log('⚠️ No hay productos con categoría asignada. Asigná al menos una categoría arriba.', 'log-err');
+    return;
+  }
+
+  log(`🚀 Iniciando importación de ${lista.length} productos...`, 'log-info');
+
+  $('btnImportar').disabled = true;
+  $('barTrack').classList.remove('hidden');
+  $('barLabel').classList.remove('hidden');
+
+  let ok = 0;
+  let errores = 0;
+
+  for (let i = 0; i < lista.length; i++) {
+    const row = lista[i];
+    const marca = String(row[0]).trim();
+    const nombreRaw = String(row[1]).trim();
+    const precio = Number(row[2]);
+    const categoria = marcaMap[marca];
+
+    // Limpiar prefijo "Marca_" del nombre
+    const partes = nombreRaw.split('_');
+    const nombre = partes.length > 1 && partes[0].toLowerCase() === marca.toLowerCase()
+      ? partes.slice(1).join(' ').trim()
+      : nombreRaw;
+
+    try {
+      await addDoc(collection(db, 'productos'), {
+        nombre,
+        marca,
+        precio,
+        categoria,
+        desc: '',
+        imagenUrl: '',
+        promo: false,
+        createdAt: new Date()
+      });
+      ok++;
+    } catch(e) {
+      errores++;
+      log(`❌ Error en "${nombre}": ${e.message}`, 'log-err');
+    }
+
+    // Barra de progreso
+    const pct = Math.round(((i + 1) / lista.length) * 100);
+    $('barFill').style.width = pct + '%';
+    $('barLabel').textContent = `${i+1} / ${lista.length} productos — ${pct}%`;
+
+    // Pausa cada 25 para no saturar
+    if ((i + 1) % 25 === 0) await new Promise(r => setTimeout(r, 600));
+  }
+
+  log(`✅ ¡Listo! ${ok} productos importados correctamente. ${errores} errores.`, 'log-ok');
+  $('btnImportar').disabled = false;
+});
+</script>
+</body>
+</html>

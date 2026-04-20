@@ -50,6 +50,12 @@ let localCategorias = {};
 let catEditMode = false;
 let currentCatEditId = null;
 
+// Paginación de Productos en Admin
+let adminProductos = [];
+let adminCurrentPage = 1;
+const ADMIN_PRODUCTOS_POR_PAGINA = 50;
+let adminSearchTerm = '';
+
 // Toast Helper
 window.showToast = function(msg, type = "success") {
     const t = document.createElement('div');
@@ -194,8 +200,8 @@ window.prepararEdicion = (id) => {
 function cargarProductos() {
     onSnapshot(collection(db, "productos"), (snapshot) => {
         tableLoader.style.display = "none";
-        tableBody.innerHTML = "";
         localProductos = {};
+        adminProductos = [];
 
         if (snapshot.empty) {
             tableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay productos cargados.</td></tr>`;
@@ -206,32 +212,107 @@ function cargarProductos() {
             const prod = docSnap.data();
             const id = docSnap.id;
             localProductos[id] = prod;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><img src="${prod.imagenUrl}" alt="${prod.nombre}" class="prod-img-preview"></td>
-                <td><strong>${prod.nombre}</strong><br><small>${prod.desc}</small></td>
-                <td><span class="producto-categoria-tag" style="position:static">${prod.categoria}</span></td>
-                <td>$${prod.precio.toLocaleString('es-AR')}</td>
-                <td>
-                    <button class="btn-icon edit" onclick="prepararEdicion('${id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-icon duplicate" style="color: #3182ce;" onclick="duplicarProducto('${id}')" title="Duplicar">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <button class="btn-icon delete" onclick="eliminarProducto('${id}')" title="Eliminar">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tableBody.appendChild(tr);
+            adminProductos.push({ id, ...prod });
         });
+        
+        // Ordenar alfabéticamente por nombre
+        adminProductos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        
+        renderAdminProductos();
     }, (error) => {
         console.error("Error al obtener productos: ", error);
         showToast("Error al cargar la tabla", "error");
     });
 }
+
+function renderAdminProductos() {
+    tableBody.innerHTML = "";
+    
+    let filtrados = adminProductos;
+    if (adminSearchTerm) {
+        filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(adminSearchTerm.toLowerCase()));
+    }
+    
+    const totalPages = Math.ceil(filtrados.length / ADMIN_PRODUCTOS_POR_PAGINA) || 1;
+    if (adminCurrentPage > totalPages) adminCurrentPage = totalPages;
+    
+    const start = (adminCurrentPage - 1) * ADMIN_PRODUCTOS_POR_PAGINA;
+    const end = start + ADMIN_PRODUCTOS_POR_PAGINA;
+    const paginados = filtrados.slice(start, end);
+
+    if (paginados.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay productos que coincidan con la búsqueda.</td></tr>`;
+    } else {
+        // Usar string HTML para ser mucho más rápido en el DOM
+        let html = '';
+        paginados.forEach((prod) => {
+            const id = prod.id;
+            html += `
+                <tr>
+                    <td><img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" alt="${prod.nombre}" class="prod-img-preview" loading="lazy"></td>
+                    <td><strong>${prod.nombre}</strong><br><small>${prod.desc || ''}</small></td>
+                    <td><span class="producto-categoria-tag" style="position:static">${prod.categoria || 'Sin Categoría'}</span></td>
+                    <td>$${prod.precio.toLocaleString('es-AR')}</td>
+                    <td>
+                        <button class="btn-icon edit" onclick="prepararEdicion('${id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon duplicate" style="color: #3182ce;" onclick="duplicarProducto('${id}')" title="Duplicar">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-icon delete" onclick="eliminarProducto('${id}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        tableBody.innerHTML = html;
+    }
+    
+    // Actualizar controles
+    const pageInfo = document.getElementById('adminPageInfo');
+    const prevBtn = document.getElementById('adminPrevPage');
+    const nextBtn = document.getElementById('adminNextPage');
+    
+    if (pageInfo) pageInfo.textContent = `Pág ${adminCurrentPage} de ${totalPages} (${filtrados.length} prod.)`;
+    if (prevBtn) prevBtn.disabled = adminCurrentPage === 1;
+    if (nextBtn) nextBtn.disabled = adminCurrentPage === totalPages || totalPages === 0;
+}
+
+// Eventos de Búsqueda y Paginación
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('adminSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            adminSearchTerm = e.target.value;
+            adminCurrentPage = 1;
+            renderAdminProductos();
+        });
+    }
+
+    const prevPageBtn = document.getElementById('adminPrevPage');
+    if (prevPageBtn) {
+        prevPageBtn.addEventListener('click', () => {
+            if (adminCurrentPage > 1) {
+                adminCurrentPage--;
+                renderAdminProductos();
+            }
+        });
+    }
+
+    const nextPageBtn = document.getElementById('adminNextPage');
+    if (nextPageBtn) {
+        nextPageBtn.addEventListener('click', () => {
+            const filtrados = adminSearchTerm ? adminProductos.filter(p => p.nombre.toLowerCase().includes(adminSearchTerm.toLowerCase())) : adminProductos;
+            const totalPages = Math.ceil(filtrados.length / ADMIN_PRODUCTOS_POR_PAGINA) || 1;
+            if (adminCurrentPage < totalPages) {
+                adminCurrentPage++;
+                renderAdminProductos();
+            }
+        });
+    }
+});
 
 // ─── ELIMINAR PRODUCTO ───
 window.eliminarProducto = async (id) => {
