@@ -116,7 +116,15 @@ form.addEventListener('submit', async (e) => {
 
     const nombre = document.getElementById('nombre').value;
     const precio = parseFloat(document.getElementById('precio').value);
-    const categoria = document.getElementById('categoria').value;
+    
+    // Obtener categorías seleccionadas
+    const checkboxElements = document.querySelectorAll('input[name="productoCategorias"]:checked');
+    const categorias = Array.from(checkboxElements).map(cb => cb.value);
+    
+    // Si no hay categorías, podemos asignar "Varios" o mostrar error
+    // El usuario pidió "no obligatorio", así que permitimos 0 categorías (o 1, o varias).
+    const categoriaPrincipal = categorias.length > 0 ? categorias[0] : "";
+
     const descripcion = document.getElementById('descripcion').value;
     const imagenUrl = document.getElementById('imagenUrlInput').value;
 
@@ -132,7 +140,8 @@ form.addEventListener('submit', async (e) => {
             await updateDoc(doc(db, "productos", currentEditId), {
                 nombre,
                 precio,
-                categoria,
+                categoria: categoriaPrincipal, // Mantenemos para compatibilidad
+                categorias: categorias, // Nuevo array de categorías
                 desc: descripcion,
                 imagenUrl
             });
@@ -143,13 +152,16 @@ form.addEventListener('submit', async (e) => {
             await addDoc(collection(db, "productos"), {
                 nombre,
                 precio,
-                categoria,
+                categoria: categoriaPrincipal, // Mantenemos para compatibilidad
+                categorias: categorias, // Nuevo array de categorías
                 desc: descripcion,
                 imagenUrl,
                 createdAt: new Date()
             });
             showToast("Producto cargado exitosamente", "success");
             form.reset();
+            // Resetear checkboxes manual
+            document.querySelectorAll('input[name="productoCategorias"]').forEach(cb => cb.checked = false);
         }
 
     } catch (error) {
@@ -169,6 +181,7 @@ cancelEditBtn.addEventListener('click', () => {
     editMode = false;
     currentEditId = null;
     form.reset();
+    document.querySelectorAll('input[name="productoCategorias"]').forEach(cb => cb.checked = false);
     
     document.getElementById('btnText').textContent = "Guardar Producto";
     cancelEditBtn.classList.add('d-none');
@@ -185,7 +198,13 @@ window.prepararEdicion = (id) => {
     // Poblar form
     document.getElementById('nombre').value = prod.nombre;
     document.getElementById('precio').value = prod.precio;
-    document.getElementById('categoria').value = prod.categoria;
+    
+    // Checkboxes de categoría
+    const catsToSelect = prod.categorias || (prod.categoria ? [prod.categoria] : []);
+    document.querySelectorAll('input[name="productoCategorias"]').forEach(cb => {
+        cb.checked = catsToSelect.includes(cb.value);
+    });
+
     document.getElementById('descripcion').value = prod.desc;
     document.getElementById('imagenUrlInput').value = prod.imagenUrl;
     
@@ -247,11 +266,18 @@ function renderAdminProductos() {
         let html = '';
         paginados.forEach((prod) => {
             const id = prod.id;
+            
+            // Renderizar múltiples categorías
+            let catsToRender = prod.categorias || (prod.categoria ? [prod.categoria] : []);
+            let catsHtml = catsToRender.length > 0 
+                ? catsToRender.map(c => `<span class="producto-categoria-tag" style="position:static; display:inline-block; margin: 2px;">${c}</span>`).join('')
+                : '<span class="producto-categoria-tag" style="position:static; display:inline-block; margin: 2px;">Sin Categoría</span>';
+
             html += `
                 <tr>
                     <td><img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" alt="${prod.nombre}" class="prod-img-preview" loading="lazy"></td>
                     <td><strong>${prod.nombre}</strong><br><small>${prod.desc || ''}</small></td>
-                    <td><span class="producto-categoria-tag" style="position:static">${prod.categoria || 'Sin Categoría'}</span></td>
+                    <td>${catsHtml}</td>
                     <td>$${prod.precio.toLocaleString('es-AR')}</td>
                     <td>
                         <button class="btn-icon edit" onclick="prepararEdicion('${id}')" title="Editar">
@@ -340,8 +366,13 @@ window.duplicarProducto = (id) => {
     // Poblar form
     document.getElementById('nombre').value = prod.nombre + " (Copia)";
     document.getElementById('precio').value = prod.precio;
-    // Si la categoría existe en el select, se seleccionará automáticamente.
-    document.getElementById('categoria').value = prod.categoria;
+    
+    // Checkboxes de categoría
+    const catsToSelect = prod.categorias || (prod.categoria ? [prod.categoria] : []);
+    document.querySelectorAll('input[name="productoCategorias"]').forEach(cb => {
+        cb.checked = catsToSelect.includes(cb.value);
+    });
+
     document.getElementById('descripcion').value = prod.desc;
     document.getElementById('imagenUrlInput').value = prod.imagenUrl;
     
@@ -360,11 +391,15 @@ function cargarCategorias() {
         catTableBody.innerHTML = "";
         localCategorias = {};
         
-        const selectCat = document.getElementById('categoria');
-        const currentValue = selectCat.value; // Guardar valor actual por si está editando
-        selectCat.innerHTML = '<option value="" disabled selected>Seleccione una categoría</option>';
+        const catContainer = document.getElementById('categoriasContainer');
+        
+        // Guardar valores actuales seleccionados por si está editando
+        const checkedBoxes = Array.from(catContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        
+        catContainer.innerHTML = '';
 
         if (snapshot.empty) {
+            catContainer.innerHTML = '<span style="color: #e53e3e; font-size: 0.9rem;">No hay categorías creadas.</span>';
             catTableBody.innerHTML = `<tr><td colspan="3" class="text-center">No hay categorías cargadas.</td></tr>`;
             return;
         }
@@ -374,11 +409,18 @@ function cargarCategorias() {
             const id = docSnap.id;
             localCategorias[id] = cat;
 
-            // Llenar select de productos
-            const option = document.createElement('option');
-            option.value = cat.nombre;
-            option.textContent = cat.nombre;
-            selectCat.appendChild(option);
+            // Llenar checkboxes de productos
+            const isChecked = checkedBoxes.includes(cat.nombre) ? 'checked' : '';
+            const label = document.createElement('label');
+            label.style.display = 'flex';
+            label.style.alignItems = 'center';
+            label.style.gap = '8px';
+            label.style.cursor = 'pointer';
+            label.innerHTML = `
+                <input type="checkbox" name="productoCategorias" value="${cat.nombre}" ${isChecked}>
+                <span>${cat.icono} ${cat.nombre}</span>
+            `;
+            catContainer.appendChild(label);
 
             // Llenar tabla de categorías
             const tr = document.createElement('tr');
@@ -396,10 +438,6 @@ function cargarCategorias() {
             `;
             catTableBody.appendChild(tr);
         });
-
-        if (currentValue) {
-            selectCat.value = currentValue;
-        }
     }, (error) => {
         console.error("Error al obtener categorías: ", error);
         showToast("Error al cargar categorías", "error");

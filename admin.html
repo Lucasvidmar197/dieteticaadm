@@ -59,11 +59,12 @@
                         <input type="number" id="precio" required placeholder="Ej: 1500" min="0">
                     </div>
                     <div class="form-group">
-                        <label for="categoria">Categoría</label>
-                        <select id="categoria" required>
-                            <option value="" disabled selected>Seleccione una categoría</option>
+                        <label>Categorías</label>
+                        <div id="categoriasContainer" style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: #fff;">
                             <!-- Llenado dinámicamente con JS -->
-                        </select>
+                            <span style="color: #a0aec0; font-size: 0.9rem;">Cargando categorías...</span>
+                        </div>
+                        <small style="color: #718096; display: block; margin-top: 5px;">Podés seleccionar una o varias categorías.</small>
                     </div>
                 </div>
 

@@ -23,6 +23,7 @@ let currentFilter = 'todos';
 let searchTerm = '';
 let productosFiltrados = [];
 let productosMostrados = 0;
+let currentPDPId = null;
 const PRODUCTOS_POR_PAGINA = 24;
 
 // ─── RENDER PRODUCTOS ───
@@ -48,6 +49,9 @@ function renderProductos(lista, append = false) {
         const enCarrito = carrito[p.id];
         if (!cantidades[p.id]) cantidades[p.id] = 1;
 
+        let catsToRender = p.categorias || (p.categoria ? [p.categoria] : ['Varios']);
+        let catsHtml = catsToRender.map(c => `<div class="producto-categoria-tag" style="display:inline-block; margin-right:5px; margin-bottom:5px;">${c}</div>`).join('');
+
         html += `
         <div class="producto-card" data-id="${p.id}" data-cat="${p.categoria}">
             <div class="producto-img" style="padding: 0;">
@@ -55,7 +59,7 @@ function renderProductos(lista, append = false) {
                 ${p.promo ? '<span class="badge-promo">🔥 Promo</span>' : ''}
             </div>
             <div class="producto-body">
-                <div class="producto-categoria-tag">${p.categoria || 'Varios'}</div>
+                <div style="display:flex; flex-wrap:wrap;">${catsHtml}</div>
                 <div class="producto-nombre">${p.nombre}</div>
                 <div class="producto-desc">${p.desc || ''}</div>
                 <div class="producto-precio-row">
@@ -146,7 +150,10 @@ function filtrarProductos(cat, btn) {
     productosFiltrados = productos;
     
     if (currentFilter !== 'todos') {
-        productosFiltrados = productosFiltrados.filter(p => p.categoria === currentFilter);
+        productosFiltrados = productosFiltrados.filter(p => {
+            const cats = p.categorias || (p.categoria ? [p.categoria] : []);
+            return cats.includes(currentFilter);
+        });
     }
     
     if (searchTerm) {
@@ -279,6 +286,103 @@ window.showToast = function(msg) {
     setTimeout(() => t.remove(), 2200);
 }
 
+// ─── PRODUCT DETAIL MODAL (PDP) ───
+function openProductDetail(id) {
+    const p = productos.find(x => x.id === id);
+    if (!p) return;
+
+    currentPDPId = id;
+    const modal = document.getElementById('pdpModal');
+    const overlay = document.getElementById('pdpOverlay');
+    
+    // Fill data
+    document.getElementById('pdpImage').src = p.imagenUrl || 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+    
+    let catsToRender = p.categorias || (p.categoria ? [p.categoria] : ['Varios']);
+    document.getElementById('pdpCategoria').textContent = catsToRender.join(', ');
+    
+    document.getElementById('pdpNombre').textContent = p.nombre;
+    document.getElementById('pdpPrecio').textContent = `$${p.precio.toLocaleString('es-AR')}`;
+    document.getElementById('pdpPrecioAntes').textContent = p.precioAntes ? `$${p.precioAntes.toLocaleString('es-AR')}` : '';
+    document.getElementById('pdpDesc').textContent = p.desc || 'Sin descripción disponible.';
+    
+    // Quantity
+    if (!cantidades[id]) cantidades[id] = 1;
+    document.getElementById('pdpQty').textContent = cantidades[id];
+
+    // Button state
+    const btn = document.getElementById('pdpAddBtn');
+    const enCarrito = carrito[id];
+    if (enCarrito) {
+        btn.classList.add('agregado');
+        btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+    } else {
+        btn.classList.remove('agregado');
+        btn.innerHTML = '<i class="fas fa-cart-plus"></i> Agregar al carrito';
+    }
+
+    // Show modal
+    modal.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scroll
+
+    // Initialize zoom
+    initZoom('pdpImage', 'pdpZoomResult', 'pdpZoomLens');
+}
+
+function closeProductDetail() {
+    const modal = document.getElementById('pdpModal');
+    const overlay = document.getElementById('pdpOverlay');
+    modal.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scroll
+    currentPDPId = null;
+}
+
+function initZoom(imgID, resultID, lensID) {
+    const img = document.getElementById(imgID);
+    const result = document.getElementById(resultID);
+    const lens = document.getElementById(lensID);
+    const container = img.parentElement;
+
+    if (!img || !result || !lens) return;
+
+    // Reset styles
+    result.style.backgroundImage = `url('${img.src}')`;
+    
+    container.onmousemove = (e) => {
+        if (window.innerWidth <= 850) return; // No zoom on mobile
+
+        lens.style.display = 'block';
+        result.style.display = 'block';
+
+        const rect = container.getBoundingClientRect();
+        let x = e.pageX - rect.left - window.scrollX;
+        let y = e.pageY - rect.top - window.scrollY;
+
+        // Lens bounds
+        if (x > img.width - (lens.offsetWidth / 2)) x = img.width - (lens.offsetWidth / 2);
+        if (x < lens.offsetWidth / 2) x = lens.offsetWidth / 2;
+        if (y > img.height - (lens.offsetHeight / 2)) y = img.height - (lens.offsetHeight / 2);
+        if (y < lens.offsetHeight / 2) y = lens.offsetHeight / 2;
+
+        lens.style.left = (x - lens.offsetWidth / 2) + "px";
+        lens.style.top = (y - lens.offsetHeight / 2) + "px";
+
+        // Zoom calculation
+        const cx = result.offsetWidth / lens.offsetWidth;
+        const cy = result.offsetHeight / lens.offsetHeight;
+
+        result.style.backgroundSize = (img.width * cx) + "px " + (img.height * cy) + "px";
+        result.style.backgroundPosition = "-" + ((x - lens.offsetWidth / 2) * cx) + "px -" + ((y - lens.offsetHeight / 2) * cy) + "px";
+    };
+
+    container.onmouseleave = () => {
+        lens.style.display = 'none';
+        result.style.display = 'none';
+    };
+}
+
 // ─── INIT & EVENT LISTENERS ───
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -337,6 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('carritoOverlay').addEventListener('click', toggleCarrito);
     document.querySelector('.carrito-close').addEventListener('click', toggleCarrito);
 
+    // PDP toggles
+    document.querySelector('.pdp-close').addEventListener('click', closeProductDetail);
+    document.getElementById('pdpOverlay').addEventListener('click', closeProductDetail);
+
     // Product grid actions
     document.getElementById('productos-grid').addEventListener('click', (e) => {
         const card = e.target.closest('.producto-card');
@@ -345,9 +453,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = card.dataset.id;
         const action = e.target.dataset.action;
 
-        if (action === 'increase') cambiarCantidad(id, 1);
-        if (action === 'decrease') cambiarCantidad(id, -1);
-        if (action === 'add' || e.target.closest('.btn-agregar')) agregarAlCarrito(id);
+        if (action === 'increase') {
+            cambiarCantidad(id, 1);
+            return;
+        }
+        if (action === 'decrease') {
+            cambiarCantidad(id, -1);
+            return;
+        }
+        if (action === 'add' || e.target.closest('.btn-agregar')) {
+            agregarAlCarrito(id);
+            return;
+        }
+
+        // If no action clicked, open PDP
+        openProductDetail(id);
+    });
+
+    // PDP actions
+    document.getElementById('pdpPlus').addEventListener('click', () => {
+        if (currentPDPId) {
+            cambiarCantidad(currentPDPId, 1);
+            document.getElementById('pdpQty').textContent = cantidades[currentPDPId];
+        }
+    });
+    document.getElementById('pdpMinus').addEventListener('click', () => {
+        if (currentPDPId) {
+            cambiarCantidad(currentPDPId, -1);
+            document.getElementById('pdpQty').textContent = cantidades[currentPDPId];
+        }
+    });
+    document.getElementById('pdpAddBtn').addEventListener('click', () => {
+        if (currentPDPId) {
+            agregarAlCarrito(currentPDPId);
+            const btn = document.getElementById('pdpAddBtn');
+            btn.classList.add('agregado');
+            btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+        }
     });
 
     // Cart items actions

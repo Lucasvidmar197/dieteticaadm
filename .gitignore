@@ -1,0 +1,6 @@
+node_modules/
+generar_descripciones.html
+importar.html
+subir_categorias.html
+*.xlsx
+.vscode/

@@ -240,6 +240,52 @@
         </div>
     </div>
 
+    <!-- ─── PRODUCT DETAIL MODAL (PDP) ─── -->
+    <div class="pdp-overlay" id="pdpOverlay"></div>
+    <div class="pdp-modal" id="pdpModal">
+        <button class="pdp-close"><i class="fas fa-times"></i></button>
+        <div class="pdp-content">
+            <div class="pdp-left">
+                <div class="pdp-image-container" id="pdpImageContainer">
+                    <img id="pdpImage" src="" alt="Producto">
+                    <div class="pdp-zoom-lens" id="pdpZoomLens"></div>
+                </div>
+                <div class="pdp-zoom-result" id="pdpZoomResult"></div>
+            </div>
+            <div class="pdp-right">
+                <div id="pdpCategoria" class="producto-categoria-tag"></div>
+                <h2 id="pdpNombre"></h2>
+                <div class="pdp-precio-row">
+                    <span id="pdpPrecio" class="precio-actual"></span>
+                    <span id="pdpPrecioAntes" class="precio-tachado"></span>
+                </div>
+                <p id="pdpDesc" class="pdp-descripcion"></p>
+                
+                <div class="pdp-actions">
+                    <div class="cantidad-control">
+                        <button class="cantidad-btn" id="pdpMinus">−</button>
+                        <span class="cantidad-num" id="pdpQty">1</span>
+                        <button class="cantidad-btn" id="pdpPlus">+</button>
+                    </div>
+                    <button class="btn-agregar" id="pdpAddBtn">
+                        <i class="fas fa-cart-plus"></i> Agregar al carrito
+                    </button>
+                </div>
+
+                <div class="pdp-info-extra">
+                    <div class="pdp-info-item">
+                        <i class="fas fa-truck"></i>
+                        <span>Envíos a todo el país</span>
+                    </div>
+                    <div class="pdp-info-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Compra 100% segura</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/script.js" type="module" defer></script>
 </body>
 </html>
