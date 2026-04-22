@@ -18,6 +18,7 @@
             <li><a href="#promos">Promos</a></li>
             <li><a href="#pagos">Métodos de Pago</a></li>
             <li><a href="#mapa">Visitanos</a></li>
+            <li><a href="javascript:void(0)" id="btn-faq-nav">FAQ</a></li>
         </ul>
         <button class="nav-carrito-btn">
             <i class="fas fa-shopping-basket"></i>
@@ -91,6 +92,120 @@
             <button id="btn-load-more" class="btn-principal" style="padding: 10px 30px; background-color: var(--verde-principal); color: white; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">Cargar más productos</button>
         </div>
     </section>
+
+    <!-- ─── FAQ MODAL (PREGUNTAS FRECUENTES) ─── -->
+    <div class="faq-overlay" id="faqOverlay"></div>
+    <div class="faq-modal" id="faqModal">
+        <div class="faq-modal-header">
+            <h3>🤔 Preguntas Frecuentes</h3>
+            <button class="faq-modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="faq-modal-content">
+            <div class="faq-container">
+                <!-- Categoría: Información de la Tienda -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">📍 Información de la Tienda</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Dónde están ubicados?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Estamos en el corazón de Quilmes: <strong>Nicolás Videla 147</strong>, B1878, Provincia de Buenos Aires.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Cuáles son los horarios de atención?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Nuestros horarios varían según el día para que siempre encuentres un momento para venir:</p>
+                            <ul style="list-style: none; margin-top: 10px;">
+                                <li><strong>Lunes:</strong> 09:00 a 00:00 hs.</li>
+                                <li><strong>Martes:</strong> 00:00 a 08:00 hs y 09:00 a 20:00 hs.</li>
+                                <li><strong>Miércoles a Viernes:</strong> 09:00 a 20:00 hs.</li>
+                                <li><strong>Sábado:</strong> 10:00 a 20:00 hs.</li>
+                                <li><strong>Domingo:</strong> Cerrado.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Cómo puedo contactarlos por WhatsApp?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Podés escribirnos directamente al <strong>11 4446-8486</strong> por cualquier consulta o pedido.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categoría: Productos y Stock -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">🍎 Productos y Stock</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Venden productos aptos para celíacos (Sin TACC)?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, contamos con una amplia variedad de productos certificados libres de gluten. Consultanos por marcas específicas por WhatsApp.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Tienen opciones para dietas veganas o vegetarianas?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>¡Claro! Desde leches vegetales y legumbres hasta suplementos y snacks 100% plant-based.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Venden productos naturales al por mayor o por peso?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, trabajamos la modalidad de venta a granel en frutos secos, semillas y cereales para que lleves solo lo que necesitás.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categoría: Pagos y Envíos -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">💳 Pagos y Envíos</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Qué métodos de pago aceptan?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Aceptamos efectivo, tarjetas de débito/crédito y <strong>Todas las billeteras virtuales</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Hacen envíos a domicilio?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Realizamos envíos a casi todo el pais. Consultanos el costo de envío y la demora estimada según tu ubicación exacta.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ─── MAPA ─── -->
     <section class="mapa-section" id="mapa">
@@ -196,6 +311,7 @@
                 <a href="#categorias">Categorías</a>
                 <a href="#promos">Promos</a>
                 <a href="#mapa">Cómo llegar</a>
+                <a href="javascript:void(0)" id="btn-faq-footer">Preguntas Frecuentes</a>
             </div>
             <div class="footer-col">
                 <h4>Contacto</h4>

@@ -38,6 +38,12 @@ let localProductos = {};
 let editMode = false;
 let currentEditId = null;
 
+// ─── UTILIDADES ───
+function normalizarTexto(texto) {
+    if (!texto) return "";
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 // Variables de Categorías
 const catForm = document.getElementById('categoriaForm');
 const catBtnText = document.getElementById('catBtnText');
@@ -45,10 +51,27 @@ const catSpinner = document.getElementById('catSpinner');
 const catTableBody = document.getElementById('categoriasTableBody');
 const catTableLoader = document.getElementById('catTableLoader');
 const catCancelEditBtn = document.getElementById('catCancelEditBtn');
+const searchCatInput = document.getElementById('searchCategoria');
 
 let localCategorias = {};
 let catEditMode = false;
 let currentCatEditId = null;
+
+// ─── FILTRADO DE CATEGORÍAS EN FORMULARIO ───
+if (searchCatInput) {
+    searchCatInput.addEventListener('input', (e) => {
+        const term = normalizarTexto(e.target.value);
+        const labels = document.querySelectorAll('#categoriasContainer label');
+        labels.forEach(label => {
+            const text = normalizarTexto(label.textContent);
+            if (text.includes(term)) {
+                label.style.display = 'flex';
+            } else {
+                label.style.display = 'none';
+            }
+        });
+    });
+}
 
 // Paginación de Productos en Admin
 let adminProductos = [];
@@ -249,7 +272,8 @@ function renderAdminProductos() {
     
     let filtrados = adminProductos;
     if (adminSearchTerm) {
-        filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(adminSearchTerm.toLowerCase()));
+        const term = normalizarTexto(adminSearchTerm);
+        filtrados = filtrados.filter(p => normalizarTexto(p.nombre).includes(term));
     }
     
     const totalPages = Math.ceil(filtrados.length / ADMIN_PRODUCTOS_POR_PAGINA) || 1;
@@ -416,6 +440,13 @@ function cargarCategorias() {
             label.style.alignItems = 'center';
             label.style.gap = '8px';
             label.style.cursor = 'pointer';
+            
+            // Si hay un término de búsqueda activo, aplicar el filtro inmediatamente
+            const searchTerm = searchCatInput ? normalizarTexto(searchCatInput.value) : '';
+            if (searchTerm && !normalizarTexto(cat.nombre).includes(searchTerm)) {
+                label.style.display = 'none';
+            }
+
             label.innerHTML = `
                 <input type="checkbox" name="productoCategorias" value="${cat.nombre}" ${isChecked}>
                 <span>${cat.icono} ${cat.nombre}</span>

@@ -26,6 +26,11 @@ let productosMostrados = 0;
 let currentPDPId = null;
 const PRODUCTOS_POR_PAGINA = 24;
 
+// ─── UTILIDADES ───
+function normalizarTexto(texto) {
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 // ─── RENDER PRODUCTOS ───
 function renderProductos(lista, append = false) {
     const grid = document.getElementById('productos-grid');
@@ -157,7 +162,11 @@ function filtrarProductos(cat, btn) {
     }
     
     if (searchTerm) {
-        productosFiltrados = productosFiltrados.filter(p => p.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+        const normalizedSearch = normalizarTexto(searchTerm);
+        productosFiltrados = productosFiltrados.filter(p => {
+            const normalizedName = normalizarTexto(p.nombre || '');
+            return normalizedName.includes(normalizedSearch);
+        });
     }
     
     renderProductos(productosFiltrados, false);
@@ -384,10 +393,55 @@ function initZoom(imgID, resultID, lensID) {
 }
 
 // ─── INIT & EVENT LISTENERS ───
+function initFAQ() {
+    const faqOverlay = document.getElementById('faqOverlay');
+    const faqModal = document.getElementById('faqModal');
+    const faqClose = document.querySelector('.faq-modal-close');
+    const faqNavBtn = document.getElementById('btn-faq-nav');
+    const faqFooterBtn = document.getElementById('btn-faq-footer');
+
+    const toggleFAQ = () => {
+        const isActive = faqModal.classList.contains('active');
+        if (isActive) {
+            faqModal.classList.remove('active');
+            faqOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        } else {
+            faqModal.classList.add('active');
+            faqOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    if (faqNavBtn) faqNavBtn.addEventListener('click', toggleFAQ);
+    if (faqFooterBtn) faqFooterBtn.addEventListener('click', toggleFAQ);
+    if (faqClose) faqClose.addEventListener('click', toggleFAQ);
+    if (faqOverlay) faqOverlay.addEventListener('click', toggleFAQ);
+
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            
+            faqItems.forEach(otherItem => {
+                otherItem.classList.remove('active');
+            });
+
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     
     const grid = document.getElementById('productos-grid');
     grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Cargando productos...</p></div>';
+
+    // Inicializar FAQ
+    initFAQ();
 
     // Fetch Categorias
     onSnapshot(collection(db, "categorias"), (snapshot) => {

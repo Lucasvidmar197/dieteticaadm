@@ -374,6 +374,30 @@
             .whatsapp-flotante { bottom: 20px; right: 20px; }
             .about-section h1 { font-size: 2rem; }
             .carrito-panel { width: 100vw; }
+
+            /* Mejoras Categorías Mobile */
+            .categorias-section { padding: 40px 15px; }
+            .categorias-grid {
+                display: flex;
+                overflow-x: auto;
+                gap: 12px;
+                padding: 10px 5px 20px;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE 10+ */
+            }
+            .categorias-grid::-webkit-scrollbar {
+                display: none; /* Chrome/Safari */
+            }
+            .categoria-card {
+                flex: 0 0 140px;
+                padding: 20px 15px;
+                scroll-snap-align: start;
+            }
+            .categoria-card .icono { font-size: 2.2rem; }
+            .categoria-card h3 { font-size: 0.85rem; }
+            .section-header { margin-bottom: 24px; }
+            .section-header h2 { font-size: 1.8rem; }
         }
 
         /* Toast */
@@ -488,7 +512,163 @@
             font-weight: 500;
             color: #555;
         }
-        .pdp-chip i { color: var(--verde-principal); font-size: 1rem; }
+
+        /* ─── FAQ SECTION ─── */
+        .faq-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .faq-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            background: var(--blanco);
+            border-radius: 25px;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .faq-modal.active {
+            display: flex;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .faq-modal-header {
+            padding: 25px 30px;
+            background: var(--verde-principal);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-modal-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            margin: 0;
+        }
+        .faq-modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .faq-modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        .faq-modal-content {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+            background: var(--fondo-claro);
+        }
+        .faq-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .faq-group-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--verde-principal);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--verde-claro);
+            display: inline-block;
+        }
+        .faq-item {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px var(--sombra);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+        .faq-item.active {
+            border-color: var(--verde-principal);
+            box-shadow: 0 8px 20px rgba(41,109,54,0.12);
+        }
+        .faq-question {
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .faq-question span {
+            font-weight: 600;
+            color: var(--texto-oscuro);
+            font-size: 1rem;
+        }
+        .faq-question i {
+            color: var(--verde-principal);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+            background: #fafafa;
+            padding: 0 22px;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 18px 22px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .faq-answer p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+        .faq-answer strong {
+            color: var(--verde-principal);
+        }
+
+        /* Responsive FAQ */
+        @media (max-width: 600px) {
+            .faq-modal {
+                width: 95%;
+                max-height: 90vh;
+            }
+            .faq-modal-header h3 {
+                font-size: 1.3rem;
+            }
+            .faq-modal-content {
+                padding: 20px;
+            }
+        }
 
         /* ─── PRODUCT DETAIL MODAL (PDP) ─── */
         .pdp-overlay {
