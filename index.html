@@ -10,22 +10,59 @@
 </head>
 <body>
 
-    <!-- ─── NAV ─── -->
-    <nav>
-        <div class="nav-logo">Vitamina <span>D</span> Dietética</div>
-        <ul class="nav-links">
-            <li><a href="#categorias">Categorías</a></li>
-            <li><a href="#promos">Promos</a></li>
-            <li><a href="#pagos">Métodos de Pago</a></li>
-            <li><a href="#mapa">Visitanos</a></li>
-            <li><a href="javascript:void(0)" id="btn-faq-nav">FAQ</a></li>
-        </ul>
-        <button class="nav-carrito-btn">
-            <i class="fas fa-shopping-basket"></i>
-            Mi carrito
-            <span class="carrito-badge" id="badge">0</span>
-        </button>
-    </nav>
+    <!-- ─── HEADER ─── -->
+    <header class="main-header">
+        <!-- Top Bar -->
+        <div class="header-top-bar">
+            <a href="https://www.instagram.com/dietetica.vitaminad/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <p class="promo-text">Hacemos envíos gratis en compras superiores a $20.000. Si tu pedido es antes de las 12:00 hs, Lo recibís en el dia!</p>
+            <div class="spacer"></div>
+        </div>
+
+        <!-- Middle Bar -->
+        <div class="header-middle-bar">
+            <div class="header-container">
+                <a href="#" class="header-logo" style="text-decoration: none;">
+                    <div style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1;">
+                        Vitamina <span style="color: #ffe6cc;">D</span><br>
+                        <span style="font-size: 1rem; font-weight: 600; letter-spacing: 2px;">Dietética</span>
+                    </div>
+                </a>
+
+                <div class="header-search-container">
+                    <input type="text" id="buscador-header" placeholder="¿Qué estás buscando?">
+                    <button type="button"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="header-actions">
+                    <a href="javascript:void(0)" id="btn-faq-nav" class="action-item">
+                        <i class="far fa-comments"></i>
+                        <span>Ayuda</span>
+                    </a>
+                    <button class="action-item nav-carrito-btn" style="background: transparent; padding: 0; box-shadow: none;">
+                        <div class="cart-icon-wrapper" style="position: relative;">
+                            <img src="https://i.postimg.cc/265c7f1C/unnamed-removebg-preview-(1).png" alt="Carrito" style="height: 28px; filter: brightness(0) invert(1);">
+                            <span class="carrito-badge" id="badge" style="top: -5px; right: -12px;">0</span>
+                        </div>
+                        <span>Mi carrito</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+         <div class="header-bottom-bar">
+             <ul class="bottom-nav-links">
+                 <li><a href="#">Inicio</a></li>
+                 <li class="dropdown-container">
+                     <a href="#promos" id="btn-productos-dropdown">Productos <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 5px;"></i></a>
+                     <div class="dropdown-menu" id="categorias-dropdown">
+                         <!-- Llenado dinámicamente con JS -->
+                     </div>
+                 </li>
+             </ul>
+         </div>
+    </header>
 
     <!-- ─── HERO ─── -->
     <header class="hero">
@@ -39,17 +76,6 @@
         <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20quiero%20hacer%20un%20pedido." target="_blank" class="btn-principal">
             Hacer un pedido ahora
         </a>
-    </section>
-
-    <!-- ─── CATEGORÍAS ─── -->
-    <section class="categorias-section" id="categorias">
-        <div class="section-header">
-            <h2>Nuestras Categorías</h2>
-            <p>Encontrá todo lo que necesitás para tu bienestar</p>
-        </div>
-        <div class="categorias-grid" id="categorias-grid">
-            <!-- Llenado dinámicamente con JS -->
-        </div>
     </section>
 
     <!-- ─── MARCAS ─── -->
@@ -71,25 +97,50 @@
         </div>
     </section>
 
-    <!-- ─── PROMOS ─── -->
+    <!-- ─── PRODUCTOS ─── -->
     <section class="promos-section" id="promos">
-        <div class="section-header">
-            <h2>🔥 Promos de la semana</h2>
-            <p>Precios especiales en nuestros productos más populares</p>
-        </div>
+        <div class="shop-layout">
+            <aside class="shop-sidebar">
+                <h3 class="sidebar-title">Filtrar por</h3>
+                
+                <div class="sidebar-block">
+                    <h4>Categorías</h4>
+                    <ul id="sidebar-categorias" class="sidebar-categorias-list">
+                        <li><a href="javascript:void(0)" class="sidebar-cat-link activo" data-filter="todos">Todas</a></li>
+                        <!-- Las categorías dinámicas se insertan aquí -->
+                    </ul>
+                </div>
 
-        <div class="search-container" style="max-width: 600px; margin: 0 auto 20px auto; display: flex; gap: 10px;">
-            <input type="search" id="buscador" placeholder="Buscar productos por nombre..." style="flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; font-family: 'Poppins', sans-serif;">
-        </div>
-
-        <div class="filtros-bar" id="filtros">
-            <button class="filtro-btn activo" data-filter="todos">Todos</button>
-            <!-- Las categorías dinámicas se insertan aquí -->
-        </div>
-
-        <div class="productos-grid" id="productos-grid"></div>
-        <div id="load-more-container" style="text-align: center; margin-top: 30px; display: none;">
-            <button id="btn-load-more" class="btn-principal" style="padding: 10px 30px; background-color: var(--verde-principal); color: white; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">Cargar más productos</button>
+                <div class="sidebar-block">
+                    <h4>Precio</h4>
+                    <div class="precio-inputs">
+                        <div>
+                            <label>Desde</label>
+                            <input type="number" id="precio-desde" placeholder="0">
+                        </div>
+                        <div>
+                            <label>Hasta</label>
+                            <input type="number" id="precio-hasta" placeholder="0">
+                        </div>
+                        <button id="btn-filtrar-precio" class="btn-precio"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </aside>
+            
+            <main class="shop-main">
+                <div class="search-container" style="display: none;">
+                    <input type="search" id="buscador" placeholder="Buscar productos por nombre...">
+                </div>
+                
+                <div class="productos-grid" id="productos-grid"></div>
+                
+                <!-- Paginación -->
+                <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 40px; margin-bottom: 20px;">
+                    <button id="prev-page" class="pagination-btn">Anterior</button>
+                    <div id="page-numbers" style="display: flex; gap: 8px; align-items: center;"></div>
+                    <button id="next-page" class="pagination-btn">Siguiente</button>
+                </div>
+            </main>
         </div>
     </section>
 
@@ -255,7 +306,7 @@
                 <span class="pago-promo-badge">⭐ Promo</span>
                 <img class="pago-logo" src="https://i.postimg.cc/L54MdJwq/Cuenta-DNI-Banco-Provincia-Logo-Vector-svg.png" alt="Cuenta DNI" style="width:110px;height:50px;object-fit:contain;">
                 <div class="pago-nombre">Cuenta DNI</div>
-                <div class="pago-detalle">Banco Provincia<br><strong style="color:var(--naranja-acento)">¡Promoción especial!</strong></div>
+                <div class="pago-detalle">Banco Provincia<br><strong style="color:#fc8403">¡Promoción especial!</strong></div>
             </div>
 
             <!-- BBVA — PROMO -->
@@ -263,7 +314,7 @@
                 <span class="pago-promo-badge">⭐ Promo</span>
                 <img class="pago-logo" src="https://i.postimg.cc/cCLP9Vtn/bbva-logo-portada.jpg" alt="BBVA" style="border-radius:6px;">
                 <div class="pago-nombre">BBVA</div>
-                <div class="pago-detalle">Tarjetas BBVA<br><strong style="color:var(--naranja-acento)">¡Promoción especial!</strong></div>
+                <div class="pago-detalle">Tarjetas BBVA<br><strong style="color:#fc8403">¡Promoción especial!</strong></div>
             </div>
 
             <!-- Cuotas -->

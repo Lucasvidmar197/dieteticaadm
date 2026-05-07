@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "firebase-admin": "^13.8.0",
+    "http-server": "^14.1.1",
     "xlsx": "^0.18.5"
   }
 }

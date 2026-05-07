@@ -23,6 +23,9 @@ const spinner = document.getElementById('spinner');
 const tableBody = document.getElementById('productosTableBody');
 const tableLoader = document.getElementById('tableLoader');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
+const prevEditBtn = document.getElementById('prevEditBtn');
+const nextEditBtn = document.getElementById('nextEditBtn');
+const autoEditToggle = document.getElementById('autoEditToggle');
 
 // DOM Elements - Login
 const loginOverlay = document.getElementById('loginOverlay');
@@ -169,7 +172,20 @@ form.addEventListener('submit', async (e) => {
                 imagenUrl
             });
             showToast("Producto actualizado", "success");
-            cancelEditBtn.click(); // Reset form
+            
+            // Modo Edición Continua
+            if (autoEditToggle && autoEditToggle.checked) {
+                const currentIndex = adminProductos.findIndex(p => p.id === currentEditId);
+                if (currentIndex >= 0 && currentIndex < adminProductos.length - 1) {
+                    // Cargar el siguiente producto automáticamente
+                    prepararEdicion(adminProductos[currentIndex + 1].id);
+                } else {
+                    showToast("No hay más productos en la lista.", "info");
+                    cancelEditBtn.click(); // Reset form si ya no hay más
+                }
+            } else {
+                cancelEditBtn.click(); // Reset form normal
+            }
         } else {
             // ─── CREAR EN FIRESTORE ───
             await addDoc(collection(db, "productos"), {
@@ -208,7 +224,117 @@ cancelEditBtn.addEventListener('click', () => {
     
     document.getElementById('btnText').textContent = "Guardar Producto";
     cancelEditBtn.classList.add('d-none');
+    if (prevEditBtn) prevEditBtn.classList.add('d-none');
+    if (nextEditBtn) nextEditBtn.classList.add('d-none');
 });
+
+// Navegación de Edición Manual (Anterior/Siguiente)
+if (prevEditBtn) {
+    prevEditBtn.addEventListener('click', () => {
+        if (!currentEditId) return;
+        const currentIndex = adminProductos.findIndex(p => p.id === currentEditId);
+        if (currentIndex > 0) {
+            prepararEdicion(adminProductos[currentIndex - 1].id);
+        }
+    });
+}
+
+if (nextEditBtn) {
+    nextEditBtn.addEventListener('click', () => {
+        if (!currentEditId) return;
+        const currentIndex = adminProductos.findIndex(p => p.id === currentEditId);
+        if (currentIndex < adminProductos.length - 1) {
+            prepararEdicion(adminProductos[currentIndex + 1].id);
+        }
+    });
+}
+
+// ─── LÓGICA DE SUBIDA DE IMÁGENES ───
+const imageDropZone = document.getElementById('imageDropZone');
+const imageFileInput = document.getElementById('imageFileInput');
+const imagenUrlInput = document.getElementById('imagenUrlInput');
+const uploadProgress = document.getElementById('uploadProgress');
+
+// Usamos ImgBB que es el estándar para keys de 32 caracteres (Postimages no tiene API pública con CORS)
+const IMAGE_API_KEY = "6472bcb6d1060650afc8ff8d5bd8d92a";
+const IMAGE_API_URL = "https://api.imgbb.com/1/upload";
+
+if (imageDropZone) {
+    imageDropZone.addEventListener('click', () => {
+        imageFileInput.click();
+    });
+
+    // Drag and Drop events
+    imageDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        imageDropZone.style.borderColor = '#3182ce';
+        imageDropZone.style.backgroundColor = '#ebf8ff';
+    });
+
+    imageDropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        imageDropZone.style.borderColor = '#cbd5e0';
+        imageDropZone.style.backgroundColor = '#f8fafc';
+    });
+
+    imageDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        imageDropZone.style.borderColor = '#cbd5e0';
+        imageDropZone.style.backgroundColor = '#f8fafc';
+        
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            uploadImage(file);
+        }
+    });
+
+    imageFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            uploadImage(file);
+        }
+    });
+}
+
+async function uploadImage(file) {
+    if (!file.type.startsWith('image/')) {
+        showToast("Por favor, seleccioná un archivo de imagen válido.", "error");
+        return;
+    }
+
+    uploadProgress.classList.remove('d-none');
+    imageDropZone.style.opacity = '0.5';
+    imageDropZone.style.pointerEvents = 'none';
+
+    const formData = new FormData();
+    formData.append('key', IMAGE_API_KEY);
+    formData.append('image', file);
+
+    try {
+        const response = await fetch(IMAGE_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            imagenUrlInput.value = data.data.url;
+            showToast("Imagen subida exitosamente", "success");
+        } else {
+            console.error("Error API:", data);
+            showToast("Error de API. Verificá que la Key sea de ImgBB.", "error");
+        }
+    } catch (error) {
+        console.error("Error de red:", error);
+        showToast("Error de conexión al subir la imagen.", "error");
+    } finally {
+        uploadProgress.classList.add('d-none');
+        imageDropZone.style.opacity = '1';
+        imageDropZone.style.pointerEvents = 'auto';
+        imageFileInput.value = '';
+    }
+}
 
 // ─── PREPARAR EDICIÓN ───
 window.prepararEdicion = (id) => {
@@ -235,6 +361,24 @@ window.prepararEdicion = (id) => {
     document.getElementById('btnText').textContent = "Actualizar Producto";
     cancelEditBtn.classList.remove('d-none');
     
+    // Mostrar y configurar botones de Anterior/Siguiente
+    if (prevEditBtn && nextEditBtn) {
+        prevEditBtn.classList.remove('d-none');
+        nextEditBtn.classList.remove('d-none');
+        
+        // Comprobar índice para deshabilitar si está en los extremos
+        const currentIndex = adminProductos.findIndex(p => p.id === id);
+        prevEditBtn.disabled = currentIndex <= 0;
+        nextEditBtn.disabled = currentIndex >= adminProductos.length - 1;
+        
+        // Estilos para indicar botón deshabilitado
+        prevEditBtn.style.opacity = prevEditBtn.disabled ? '0.5' : '1';
+        prevEditBtn.style.cursor = prevEditBtn.disabled ? 'not-allowed' : 'pointer';
+        
+        nextEditBtn.style.opacity = nextEditBtn.disabled ? '0.5' : '1';
+        nextEditBtn.style.cursor = nextEditBtn.disabled ? 'not-allowed' : 'pointer';
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -256,6 +400,16 @@ function cargarProductos() {
             localProductos[id] = prod;
             adminProductos.push({ id, ...prod });
         });
+        
+        // Actualizar Estadísticas
+        const total = adminProductos.length;
+        const sinImagen = adminProductos.filter(p => !p.imagenUrl || p.imagenUrl.trim() === "").length;
+        
+        const statTotal = document.getElementById('statTotalProductos');
+        const statSinImagen = document.getElementById('statSinImagen');
+        
+        if (statTotal) statTotal.textContent = total;
+        if (statSinImagen) statSinImagen.textContent = sinImagen;
         
         // Ordenar alfabéticamente por nombre
         adminProductos.sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -362,6 +516,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const btnVerSinImagen = document.getElementById('btnVerSinImagen');
+    if (btnVerSinImagen) {
+        btnVerSinImagen.addEventListener('click', () => {
+            const adminSearch = document.getElementById('adminSearch');
+            if (adminSearch) {
+                // Filtramos por productos que no tienen URL de imagen
+                adminSearchTerm = ""; // Limpiamos búsqueda de texto
+                adminSearch.value = "";
+                
+                // Sobrescribimos temporalmente el filtrado en el render
+                const sinImagen = adminProductos.filter(p => !p.imagenUrl || p.imagenUrl.trim() === "");
+                
+                if (sinImagen.length === 0) {
+                    showToast("No hay productos sin imagen", "info");
+                    return;
+                }
+
+                // Usamos un pequeño truco: filtramos adminProductos para que el render use solo esos
+                const originales = [...adminProductos];
+                adminProductos = sinImagen;
+                adminCurrentPage = 1;
+                renderAdminProductos();
+                
+                // Restauramos la lista original después del render para que la búsqueda siga funcionando
+                adminProductos = originales;
+                
+                showToast(`Mostrando ${sinImagen.length} productos sin imagen`, "info");
+                
+                // Botón para volver a ver todos
+                btnVerSinImagen.textContent = "Ver todos los productos";
+                btnVerSinImagen.onclick = () => {
+                    adminCurrentPage = 1;
+                    renderAdminProductos();
+                    btnVerSinImagen.textContent = "Ver todos";
+                    btnVerSinImagen.onclick = null; // Volver al listener original
+                };
+            }
+        });
+    }
 });
 
 // ─── ELIMINAR PRODUCTO ───
@@ -403,6 +597,8 @@ window.duplicarProducto = (id) => {
     // UI
     document.getElementById('btnText').textContent = "Guardar Producto";
     cancelEditBtn.classList.remove('d-none');
+    if (prevEditBtn) prevEditBtn.classList.add('d-none');
+    if (nextEditBtn) nextEditBtn.classList.add('d-none');
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast("Producto copiado al formulario. Modificalo y guardá.", "success");
