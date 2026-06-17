@@ -65,10 +65,14 @@ function renderProductos(lista) {
         let catsToRender = p.categorias || (p.categoria ? [p.categoria] : ['Varios']);
         let catsHtml = catsToRender.map(c => `<div class="producto-categoria-tag" style="display:inline-block; margin-right:5px; margin-bottom:5px;">${c}</div>`).join('');
 
+        const finalImageUrl = (p.imagenUrl && p.imagenUrl !== "img/product-placeholder.svg") 
+            ? p.imagenUrl 
+            : 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+
         html += `
         <div class="producto-card" data-id="${p.id}" data-cat="${p.categoria}">
             <div class="producto-img" style="padding: 0;">
-                <img src="${p.imagenUrl || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" alt="${p.nombre}" loading="lazy" style="width:100%; height:100%; object-fit:cover; border-radius: 12px 12px 0 0;">
+                <img src="${finalImageUrl}" alt="${p.nombre}" loading="lazy" style="width:100%; height:100%; object-fit:cover; border-radius: 12px 12px 0 0;">
                 ${p.promo ? '<span class="badge-promo">🔥 Promo</span>' : ''}
             </div>
             <div class="producto-body">
@@ -383,7 +387,10 @@ function openProductDetail(id) {
     const overlay = document.getElementById('pdpOverlay');
     
     // Fill data
-    document.getElementById('pdpImage').src = p.imagenUrl || 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+    const finalImageUrl = (p.imagenUrl && p.imagenUrl !== "img/product-placeholder.svg") 
+        ? p.imagenUrl 
+        : 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+    document.getElementById('pdpImage').src = finalImageUrl;
     
     let catsToRender = p.categorias || (p.categoria ? [p.categoria] : ['Varios']);
     document.getElementById('pdpCategoria').textContent = catsToRender.join(', ');

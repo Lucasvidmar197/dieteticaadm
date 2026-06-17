@@ -626,7 +626,7 @@ function buildMergedProduct(sourceProduct, existingProduct) {
         precioAntes: null,
         activo: sourceProduct.activo,
         desc: buildDescription(sourceProduct, existingProduct),
-        imagenUrl: existingProduct?.imagenUrl || "img/product-placeholder.svg"
+        imagenUrl: existingProduct?.imagenUrl && existingProduct.imagenUrl !== "img/product-placeholder.svg" ? existingProduct.imagenUrl : ""
     };
 
     return merged;

@@ -416,7 +416,7 @@ function cargarProductos(productsCollection) {
         
         // Actualizar Estadísticas
         const total = adminProductos.length;
-        const sinImagen = adminProductos.filter(p => !p.imagenUrl || p.imagenUrl.trim() === "").length;
+        const sinImagen = adminProductos.filter(p => !p.imagenUrl || p.imagenUrl.trim() === "" || p.imagenUrl === "img/product-placeholder.svg").length;
         
         const statTotal = document.getElementById('statTotalProductos');
         const statSinImagen = document.getElementById('statSinImagen');
@@ -464,9 +464,13 @@ function renderAdminProductos() {
                 ? catsToRender.map(c => `<span class="producto-categoria-tag" style="position:static; display:inline-block; margin: 2px;">${c}</span>`).join('')
                 : '<span class="producto-categoria-tag" style="position:static; display:inline-block; margin: 2px;">Sin Categoría</span>';
 
+            const finalImageUrl = (prod.imagenUrl && prod.imagenUrl !== "img/product-placeholder.svg") 
+                ? prod.imagenUrl 
+                : 'https://via.placeholder.com/50';
+
             html += `
                 <tr>
-                    <td><img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" alt="${prod.nombre}" class="prod-img-preview" loading="lazy"></td>
+                    <td><img src="${finalImageUrl}" alt="${prod.nombre}" class="prod-img-preview" loading="lazy"></td>
                     <td><strong>${prod.nombre}</strong><br><small>${prod.desc || ''}</small></td>
                     <td>${catsHtml}</td>
                     <td>$${prod.precio.toLocaleString('es-AR')}</td>
@@ -540,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminSearch.value = "";
                 
                 // Sobrescribimos temporalmente el filtrado en el render
-                const sinImagen = adminProductos.filter(p => !p.imagenUrl || p.imagenUrl.trim() === "");
+                const sinImagen = adminProductos.filter(p => !p.imagenUrl || p.imagenUrl.trim() === "" || p.imagenUrl === "img/product-placeholder.svg");
                 
                 if (sinImagen.length === 0) {
                     showToast("No hay productos sin imagen", "info");
