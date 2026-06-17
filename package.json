@@ -1,0 +1,21 @@
+{
+  "name": "vitamina-d",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "catalog:dry-run": "node scripts/catalog-sync.js --dry-run",
+    "catalog:rollback": "node scripts/catalog-rollback.js",
+    "catalog:sync": "node scripts/catalog-sync.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "firebase-admin": "^14.0.0",
+    "xlsx": "^0.18.5"
+  }
+}

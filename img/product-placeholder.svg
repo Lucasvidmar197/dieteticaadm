@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-labelledby="title desc">
+  <title id="title">Imagen de producto no disponible</title>
+  <desc id="desc">Marcador visual para productos sin foto cargada.</desc>
+  <rect width="640" height="480" fill="#f5f0e6"/>
+  <rect x="24" y="24" width="592" height="432" rx="24" fill="#ffffff" stroke="#d9d1c2" stroke-width="8"/>
+  <circle cx="240" cy="180" r="48" fill="#d8c48a"/>
+  <path d="M120 340l90-90 72 72 56-56 126 74H120z" fill="#8aaa79"/>
+  <rect x="148" y="376" width="344" height="18" rx="9" fill="#d9d1c2"/>
+  <rect x="200" y="410" width="240" height="14" rx="7" fill="#ece6da"/>
+</svg>

@@ -1,0 +1,418 @@
+import { addDoc, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { auth } from "./firebase-config.js";
+import { getCatalogCollections, getActiveCatalogConfig, buildProductDocRef, buildCategoryDocRef } from "./catalog-store.js";
+
+// DOM Elements - Admin Panel
+const form = document.getElementById('productForm');
+const btnText = document.getElementById('btnText');
+const spinner = document.getElementById('spinner');
+const tableBody = document.getElementById('productosTableBody');
+const tableLoader = document.getElementById('tableLoader');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+// DOM Elements - Login
+const loginOverlay = document.getElementById('loginOverlay');
+const mainAdminPanel = document.getElementById('mainAdminPanel');
+const adminNav = document.getElementById('adminNav');
+const loginForm = document.getElementById('loginForm');
+const loginBtnText = document.getElementById('loginBtnText');
+const loginSpinner = document.getElementById('loginSpinner');
+const logoutBtn = document.getElementById('logoutBtn');
+
+// Variables de estado
+let localProductos = {};
+let editMode = false;
+let currentEditId = null;
+let catalogConfig = null;
+let catalogRefs = null;
+let unsubscribeProductos = null;
+let unsubscribeCategorias = null;
+
+// Variables de Categorías
+const catForm = document.getElementById('categoriaForm');
+const catBtnText = document.getElementById('catBtnText');
+const catSpinner = document.getElementById('catSpinner');
+const catTableBody = document.getElementById('categoriasTableBody');
+const catTableLoader = document.getElementById('catTableLoader');
+const catCancelEditBtn = document.getElementById('catCancelEditBtn');
+
+let localCategorias = {};
+let catEditMode = false;
+let currentCatEditId = null;
+
+function getPrimaryCategory(prod) {
+    return prod.categoriaPrincipal || prod.categoria || '';
+}
+
+function getCategorySummary(prod) {
+    if (Array.isArray(prod.categorias) && prod.categorias.length > 0) {
+        return prod.categorias.join(', ');
+    }
+
+    return getPrimaryCategory(prod);
+}
+
+async function ensureCatalogRefs() {
+    catalogConfig = await getActiveCatalogConfig();
+    catalogRefs = await getCatalogCollections();
+}
+
+// Toast Helper
+window.showToast = function(msg, type = "success") {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+}
+
+// ─── AUTHENTICATION ───
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        loginOverlay.style.display = 'none';
+        mainAdminPanel.style.display = 'grid';
+        adminNav.style.display = 'flex';
+        await ensureCatalogRefs();
+        cargarCategorias();
+        cargarProductos();
+    } else {
+        if (unsubscribeProductos) unsubscribeProductos();
+        if (unsubscribeCategorias) unsubscribeCategorias();
+        loginOverlay.style.display = 'flex';
+        mainAdminPanel.style.display = 'none';
+        adminNav.style.display = 'none';
+    }
+});
+
+loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('adminEmail').value;
+    const password = document.getElementById('adminPassword').value;
+
+    loginBtnText.textContent = "Ingresando...";
+    loginSpinner.classList.remove('d-none');
+    loginForm.querySelector('button').disabled = true;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            showToast("Login exitoso", "success");
+        })
+        .catch((error) => {
+            showToast("Error: Correo o contraseña incorrectos", "error");
+            console.error(error);
+        })
+        .finally(() => {
+            loginBtnText.textContent = "Ingresar";
+            loginSpinner.classList.add('d-none');
+            loginForm.querySelector('button').disabled = false;
+        });
+});
+
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        showToast("Sesión cerrada", "success");
+    });
+});
+
+// ─── CARGAR / EDITAR PRODUCTO ───
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const precio = parseFloat(document.getElementById('precio').value);
+    const categoria = document.getElementById('categoria').value;
+    const descripcion = document.getElementById('descripcion').value;
+    const imagenUrl = document.getElementById('imagenUrlInput').value;
+
+    // UI Loading state
+    btnText.textContent = editMode ? "Actualizando..." : "Guardando...";
+    spinner.classList.remove('d-none');
+    form.querySelector('button[type="submit"]').disabled = true;
+    cancelEditBtn.disabled = true;
+
+    try {
+        if (editMode) {
+            // ─── ACTUALIZAR FIRESTORE ───
+            await updateDoc(buildProductDocRef(currentEditId, catalogConfig), {
+                nombre,
+                precio,
+                categoria,
+                categoriaPrincipal: categoria,
+                categorias: [categoria],
+                alimentaciones: [],
+                desc: descripcion,
+                imagenUrl,
+                activo: true
+            });
+            showToast("Producto actualizado", "success");
+            cancelEditBtn.click(); // Reset form
+        } else {
+            // ─── CREAR EN FIRESTORE ───
+            await addDoc(catalogRefs.productsCollection, {
+                nombre,
+                precio,
+                categoria,
+                categoriaPrincipal: categoria,
+                categorias: [categoria],
+                alimentaciones: [],
+                desc: descripcion,
+                imagenUrl,
+                activo: true,
+                createdAt: new Date()
+            });
+            showToast("Producto cargado exitosamente", "success");
+            form.reset();
+        }
+
+    } catch (error) {
+        console.error("Error guardando producto: ", error);
+        showToast("Error al guardar: " + error.message, "error");
+    } finally {
+        // Reset UI
+        btnText.textContent = editMode ? "Actualizar Producto" : "Guardar Producto";
+        spinner.classList.add('d-none');
+        form.querySelector('button[type="submit"]').disabled = false;
+        cancelEditBtn.disabled = false;
+    }
+});
+
+// ─── LÓGICA DE CANCELAR EDICIÓN ───
+cancelEditBtn.addEventListener('click', () => {
+    editMode = false;
+    currentEditId = null;
+    form.reset();
+    
+    document.getElementById('btnText').textContent = "Guardar Producto";
+    cancelEditBtn.classList.add('d-none');
+});
+
+// ─── PREPARAR EDICIÓN ───
+window.prepararEdicion = (id) => {
+    const prod = localProductos[id];
+    if (!prod) return;
+
+    editMode = true;
+    currentEditId = id;
+
+    // Poblar form
+    document.getElementById('nombre').value = prod.nombre;
+    document.getElementById('precio').value = prod.precio;
+    document.getElementById('categoria').value = getPrimaryCategory(prod);
+    document.getElementById('descripcion').value = prod.desc || '';
+    document.getElementById('imagenUrlInput').value = prod.imagenUrl || '';
+    
+    // UI
+    document.getElementById('btnText').textContent = "Actualizar Producto";
+    cancelEditBtn.classList.remove('d-none');
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// ─── LEER PRODUCTOS (Tiempo Real) ───
+function cargarProductos() {
+    if (unsubscribeProductos) unsubscribeProductos();
+
+    unsubscribeProductos = onSnapshot(catalogRefs.productsCollection, (snapshot) => {
+        tableLoader.style.display = "none";
+        tableBody.innerHTML = "";
+        localProductos = {};
+
+        if (snapshot.empty) {
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay productos cargados.</td></tr>`;
+            return;
+        }
+
+        snapshot.forEach((docSnap) => {
+            const prod = docSnap.data();
+            const id = docSnap.id;
+            localProductos[id] = { id, ...prod };
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${prod.imagenUrl || 'img/product-placeholder.svg'}" alt="${prod.nombre}" class="prod-img-preview"></td>
+                <td><strong>${prod.nombre}</strong><br><small>${prod.desc}</small></td>
+                <td><span class="producto-categoria-tag" style="position:static">${getCategorySummary(prod)}</span></td>
+                <td>$${prod.precio.toLocaleString('es-AR')}</td>
+                <td>
+                    <button class="btn-icon edit" onclick="prepararEdicion('${id}')" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon duplicate" style="color: #3182ce;" onclick="duplicarProducto('${id}')" title="Duplicar">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="btn-icon delete" onclick="eliminarProducto('${id}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }, (error) => {
+        console.error("Error al obtener productos: ", error);
+        showToast("Error al cargar la tabla", "error");
+    });
+}
+
+// ─── ELIMINAR PRODUCTO ───
+window.eliminarProducto = async (id) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+        return;
+    }
+
+    try {
+        await deleteDoc(buildProductDocRef(id, catalogConfig));
+        showToast("Producto eliminado", "success");
+    } catch (error) {
+        console.error("Error eliminando producto: ", error);
+        showToast("Error al eliminar", "error");
+    }
+};
+
+// ─── DUPLICAR PRODUCTO ───
+window.duplicarProducto = (id) => {
+    const prod = localProductos[id];
+    if (!prod) return;
+
+    editMode = false;
+    currentEditId = null;
+
+    // Poblar form
+    document.getElementById('nombre').value = prod.nombre + " (Copia)";
+    document.getElementById('precio').value = prod.precio;
+    // Si la categoría existe en el select, se seleccionará automáticamente.
+    document.getElementById('categoria').value = getPrimaryCategory(prod);
+    document.getElementById('descripcion').value = prod.desc;
+    document.getElementById('imagenUrlInput').value = prod.imagenUrl || '';
+    
+    // UI
+    document.getElementById('btnText').textContent = "Guardar Producto";
+    cancelEditBtn.classList.remove('d-none');
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast("Producto copiado al formulario. Modificalo y guardá.", "success");
+};
+
+// ─── GESTIÓN DE CATEGORÍAS ───
+function cargarCategorias() {
+    if (unsubscribeCategorias) unsubscribeCategorias();
+
+    unsubscribeCategorias = onSnapshot(catalogRefs.categoriesCollection, (snapshot) => {
+        catTableLoader.style.display = "none";
+        catTableBody.innerHTML = "";
+        localCategorias = {};
+        
+        const selectCat = document.getElementById('categoria');
+        const currentValue = selectCat.value; // Guardar valor actual por si está editando
+        selectCat.innerHTML = '<option value="" disabled selected>Seleccione una categoría</option>';
+
+        if (snapshot.empty) {
+            catTableBody.innerHTML = `<tr><td colspan="3" class="text-center">No hay categorías cargadas.</td></tr>`;
+            return;
+        }
+
+        snapshot.forEach((docSnap) => {
+            const cat = docSnap.data();
+            const id = docSnap.id;
+            localCategorias[id] = { id, ...cat };
+
+            // Llenar select de productos
+            const option = document.createElement('option');
+            option.value = cat.nombre;
+            option.textContent = cat.nombre;
+            selectCat.appendChild(option);
+
+            // Llenar tabla de categorías
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-size: 1.5rem;">${cat.icono}</td>
+                <td><strong>${cat.nombre}</strong></td>
+                <td>
+                    <button class="btn-icon edit" onclick="prepararEdicionCategoria('${id}')" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon delete" onclick="eliminarCategoria('${id}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            catTableBody.appendChild(tr);
+        });
+
+        if (currentValue) {
+            selectCat.value = currentValue;
+        }
+    }, (error) => {
+        console.error("Error al obtener categorías: ", error);
+        showToast("Error al cargar categorías", "error");
+    });
+}
+
+catForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById('catNombre').value;
+    const icono = document.getElementById('catIcono').value;
+
+    catBtnText.textContent = catEditMode ? "Actualizando..." : "Guardando...";
+    catSpinner.classList.remove('d-none');
+    catForm.querySelector('button[type="submit"]').disabled = true;
+    catCancelEditBtn.disabled = true;
+
+    try {
+        if (catEditMode) {
+            await updateDoc(buildCategoryDocRef(currentCatEditId, catalogConfig), { nombre, icono });
+            showToast("Categoría actualizada", "success");
+            catCancelEditBtn.click();
+        } else {
+            await addDoc(catalogRefs.categoriesCollection, { nombre, icono, activa: true });
+            showToast("Categoría creada exitosamente", "success");
+            catForm.reset();
+        }
+    } catch (error) {
+        console.error("Error guardando categoría: ", error);
+        showToast("Error al guardar: " + error.message, "error");
+    } finally {
+        catBtnText.textContent = catEditMode ? "Actualizar Categoría" : "Guardar Categoría";
+        catSpinner.classList.add('d-none');
+        catForm.querySelector('button[type="submit"]').disabled = false;
+        catCancelEditBtn.disabled = false;
+    }
+});
+
+catCancelEditBtn.addEventListener('click', () => {
+    catEditMode = false;
+    currentCatEditId = null;
+    catForm.reset();
+    document.getElementById('catBtnText').textContent = "Guardar Categoría";
+    catCancelEditBtn.classList.add('d-none');
+});
+
+window.prepararEdicionCategoria = (id) => {
+    const cat = localCategorias[id];
+    if (!cat) return;
+
+    catEditMode = true;
+    currentCatEditId = id;
+
+    document.getElementById('catNombre').value = cat.nombre;
+    document.getElementById('catIcono').value = cat.icono;
+    
+    document.getElementById('catBtnText').textContent = "Actualizar Categoría";
+    catCancelEditBtn.classList.remove('d-none');
+    
+    // Scroll to the category form, which is just above the product list. It's the first admin-card typically or we just scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.eliminarCategoria = async (id) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar esta categoría? Esto no eliminará los productos de esta categoría.")) return;
+
+    try {
+        await deleteDoc(buildCategoryDocRef(id, catalogConfig));
+        showToast("Categoría eliminada", "success");
+    } catch (error) {
+        console.error("Error eliminando categoría: ", error);
+        showToast("Error al eliminar", "error");
+    }
+};
