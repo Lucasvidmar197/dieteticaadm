@@ -261,7 +261,11 @@ window.showToast = function(msg) {
 
 // ─── INIT & EVENT LISTENERS ───
 document.addEventListener('DOMContentLoaded', () => {
-    inicializarCatalogo();
+    inicializarCatalogo().catch(err => {
+        console.error("Error crítico inicializando catálogo:", err);
+        const grid = document.getElementById('productos-grid');
+        if (grid) grid.innerHTML = '<p style="text-align:center; padding:20px; color:red;">Error al conectar con la base de datos. Por favor, recargá la página.</p>';
+    });
 });
 
 async function inicializarCatalogo() {
