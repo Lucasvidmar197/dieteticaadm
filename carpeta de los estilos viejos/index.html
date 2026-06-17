@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitamina D Dietética</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ─── HEADER ─── -->
+    <header class="main-header">
+        <!-- Top Bar -->
+        <div class="header-top-bar">
+            <a href="https://www.instagram.com/dietetica.vitaminad/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <p class="promo-text">Hacemos envíos gratis en compras superiores a $20.000. Si tu pedido es antes de las 12:00 hs, Lo recibís en el dia!</p>
+            <div class="spacer"></div>
+        </div>
+
+        <!-- Middle Bar -->
+        <div class="header-middle-bar">
+            <div class="header-container">
+                <a href="#" class="header-logo" style="text-decoration: none;">
+                    <div style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1;">
+                        Vitamina <span style="color: #ffe6cc;">D</span><br>
+                        <span style="font-size: 1rem; font-weight: 600; letter-spacing: 2px;">Dietética</span>
+                    </div>
+                </a>
+
+                <div class="header-search-container">
+                    <input type="text" id="buscador-header" placeholder="¿Qué estás buscando?">
+                    <button type="button"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="header-actions">
+                    <a href="javascript:void(0)" id="btn-faq-nav" class="action-item">
+                        <i class="far fa-comments"></i>
+                        <span>Ayuda</span>
+                    </a>
+                    <button class="action-item nav-carrito-btn" style="background: transparent; padding: 0; box-shadow: none;">
+                        <div class="cart-icon-wrapper" style="position: relative;">
+                            <img src="https://i.postimg.cc/265c7f1C/unnamed-removebg-preview-(1).png" alt="Carrito" style="height: 28px; filter: brightness(0) invert(1);">
+                            <span class="carrito-badge" id="badge" style="top: -5px; right: -12px;">0</span>
+                        </div>
+                        <span>Mi carrito</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+         <div class="header-bottom-bar">
+             <ul class="bottom-nav-links">
+                 <li><a href="#">Inicio</a></li>
+                 <li class="dropdown-container">
+                     <a href="#promos" id="btn-productos-dropdown">Productos <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 5px;"></i></a>
+                     <div class="dropdown-menu" id="categorias-dropdown">
+                         <!-- Llenado dinámicamente con JS -->
+                     </div>
+                 </li>
+             </ul>
+         </div>
+    </header>
+
+    <!-- ─── HERO ─── -->
+    <header class="hero">
+        <img src="https://i.postimg.cc/QtvPGKbw/Gemini-Generated-Image-vjwhw1vjwhw1vjwh.png" alt="Banner Vitamina D Dietética">
+    </header>
+
+    <!-- ─── ABOUT ─── -->
+    <section class="about-section">
+        <h1>Tu rincón natural</h1>
+        <p>En <strong>Vitamina D Dietética</strong> nos apasiona promover un estilo de vida saludable. Ofrecemos la mejor selección de productos naturales, frutos secos, cereales, suplementos y opciones sin TACC. Nuestro objetivo es brindarte calidad y atención personalizada para que encuentres todo lo que necesitas para tu bienestar.</p>
+        <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20quiero%20hacer%20un%20pedido." target="_blank" class="btn-principal">
+            Hacer un pedido ahora
+        </a>
+    </section>
+
+    <!-- ─── MARCAS ─── -->
+    <section class="marcas-section">
+        <h2>Marcas con las que trabajamos</h2>
+        <div class="slider">
+            <div class="slide-track">
+                <div class="slide"><div class="slide-caja">Granja del Sol</div></div>
+                <div class="slide"><div class="slide-caja">Arcor Natura</div></div>
+                <div class="slide"><div class="slide-caja">Quaker</div></div>
+                <div class="slide"><div class="slide-caja">Knorr</div></div>
+                <div class="slide"><div class="slide-caja">La Asunción</div></div>
+                <div class="slide"><div class="slide-caja">Granja del Sol</div></div>
+                <div class="slide"><div class="slide-caja">Arcor Natura</div></div>
+                <div class="slide"><div class="slide-caja">Quaker</div></div>
+                <div class="slide"><div class="slide-caja">Knorr</div></div>
+                <div class="slide"><div class="slide-caja">La Asunción</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── PRODUCTOS ─── -->
+    <section class="promos-section" id="promos">
+        <div class="shop-layout">
+            <aside class="shop-sidebar">
+                <h3 class="sidebar-title">Filtrar por</h3>
+                
+                <div class="sidebar-block">
+                    <h4>Categorías</h4>
+                    <ul id="sidebar-categorias" class="sidebar-categorias-list">
+                        <li><a href="javascript:void(0)" class="sidebar-cat-link activo" data-filter="todos">Todas</a></li>
+                        <!-- Las categorías dinámicas se insertan aquí -->
+                    </ul>
+                </div>
+
+                <div class="sidebar-block">
+                    <h4>Precio</h4>
+                    <div class="precio-inputs">
+                        <div>
+                            <label>Desde</label>
+                            <input type="number" id="precio-desde" placeholder="0">
+                        </div>
+                        <div>
+                            <label>Hasta</label>
+                            <input type="number" id="precio-hasta" placeholder="0">
+                        </div>
+                        <button id="btn-filtrar-precio" class="btn-precio"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </aside>
+            
+            <main class="shop-main">
+                <div class="search-container" style="display: none;">
+                    <input type="search" id="buscador" placeholder="Buscar productos por nombre...">
+                </div>
+                
+                <div class="productos-grid" id="productos-grid"></div>
+                
+                <!-- Paginación -->
+                <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 40px; margin-bottom: 20px;">
+                    <button id="prev-page" class="pagination-btn">Anterior</button>
+                    <div id="page-numbers" style="display: flex; gap: 8px; align-items: center;"></div>
+                    <button id="next-page" class="pagination-btn">Siguiente</button>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- ─── FAQ MODAL (PREGUNTAS FRECUENTES) ─── -->
+    <div class="faq-overlay" id="faqOverlay"></div>
+    <div class="faq-modal" id="faqModal">
+        <div class="faq-modal-header">
+            <h3>🤔 Preguntas Frecuentes</h3>
+            <button class="faq-modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="faq-modal-content">
+            <div class="faq-container">
+                <!-- Categoría: Información de la Tienda -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">📍 Información de la Tienda</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Dónde están ubicados?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Estamos en el corazón de Quilmes: <strong>Nicolás Videla 147</strong>, B1878, Provincia de Buenos Aires.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Cuáles son los horarios de atención?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Nuestros horarios varían según el día para que siempre encuentres un momento para venir:</p>
+                            <ul style="list-style: none; margin-top: 10px;">
+                                <li><strong>Lunes:</strong> 09:00 a 00:00 hs.</li>
+                                <li><strong>Martes:</strong> 00:00 a 08:00 hs y 09:00 a 20:00 hs.</li>
+                                <li><strong>Miércoles a Viernes:</strong> 09:00 a 20:00 hs.</li>
+                                <li><strong>Sábado:</strong> 10:00 a 20:00 hs.</li>
+                                <li><strong>Domingo:</strong> Cerrado.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Cómo puedo contactarlos por WhatsApp?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Podés escribirnos directamente al <strong>11 4446-8486</strong> por cualquier consulta o pedido.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categoría: Productos y Stock -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">🍎 Productos y Stock</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Venden productos aptos para celíacos (Sin TACC)?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, contamos con una amplia variedad de productos certificados libres de gluten. Consultanos por marcas específicas por WhatsApp.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Tienen opciones para dietas veganas o vegetarianas?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>¡Claro! Desde leches vegetales y legumbres hasta suplementos y snacks 100% plant-based.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Venden productos naturales al por mayor o por peso?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, trabajamos la modalidad de venta a granel en frutos secos, semillas y cereales para que lleves solo lo que necesitás.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categoría: Pagos y Envíos -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">💳 Pagos y Envíos</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Qué métodos de pago aceptan?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Aceptamos efectivo, tarjetas de débito/crédito y <strong>Todas las billeteras virtuales</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Hacen envíos a domicilio?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Realizamos envíos a casi todo el pais. Consultanos el costo de envío y la demora estimada según tu ubicación exacta.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── MAPA ─── -->
+    <section class="mapa-section" id="mapa">
+        <h2>Visitanos</h2>
+        <p><i class="fas fa-map-marker-alt" style="color: var(--verde-principal);"></i> Nicolás Videla 147, B1878, Quilmes, PBA.</p>
+        <div class="map-container">
+            <iframe src="https://maps.google.com/maps?q=Nicol%C3%A1s%20Videla%20147,%20Quilmes,%20Provincia%20de%20Buenos%20Aires&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </section>
+
+    <!-- ─── MÉTODOS DE PAGO ─── -->
+    <section class="pagos-section" id="pagos">
+        <div class="section-header">
+            <h2>💳 Métodos de Pago</h2>
+            <p>Aceptamos múltiples formas de pago para tu comodidad</p>
+        </div>
+
+        <div class="pagos-grid">
+
+            <!-- Visa -->
+            <div class="pago-card">
+                <img class="pago-logo" src="https://i.postimg.cc/xCYwHk0p/52dea02fc76a2visa-nuevo-logo-623.jpg" alt="Visa" style="border-radius:6px;">
+                <div class="pago-nombre">Visa</div>
+                <div class="pago-detalle">Crédito y débito<br>Todos los bancos</div>
+            </div>
+
+            <!-- Mastercard -->
+            <div class="pago-card">
+                <svg class="pago-logo-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="30" cy="25" r="18" fill="#EB001B"/>
+                    <circle cx="50" cy="25" r="18" fill="#F79E1B"/>
+                    <path d="M40 10.8 A18 18 0 0 1 40 39.2 A18 18 0 0 1 40 10.8Z" fill="#FF5F00"/>
+                </svg>
+                <div class="pago-nombre">Mastercard</div>
+                <div class="pago-detalle">Crédito y débito<br>Todos los bancos</div>
+            </div>
+
+            <!-- Mercado Pago -->
+            <div class="pago-card">
+                <img class="pago-logo" src="https://i.postimg.cc/c1csDS2g/images.png" alt="Mercado Pago" style="width:110px;height:45px;">
+                <div class="pago-nombre">Mercado Pago</div>
+                <div class="pago-detalle">Tarjetas, QR<br>Dinero en cuenta</div>
+            </div>
+
+            <!-- Cuenta DNI — PROMO -->
+            <div class="pago-card promo-card">
+                <span class="pago-promo-badge">⭐ Promo</span>
+                <img class="pago-logo" src="https://i.postimg.cc/L54MdJwq/Cuenta-DNI-Banco-Provincia-Logo-Vector-svg.png" alt="Cuenta DNI" style="width:110px;height:50px;object-fit:contain;">
+                <div class="pago-nombre">Cuenta DNI</div>
+                <div class="pago-detalle">Banco Provincia<br><strong style="color:#fc8403">¡Promoción especial!</strong></div>
+            </div>
+
+            <!-- BBVA — PROMO -->
+            <div class="pago-card promo-card">
+                <span class="pago-promo-badge">⭐ Promo</span>
+                <img class="pago-logo" src="https://i.postimg.cc/cCLP9Vtn/bbva-logo-portada.jpg" alt="BBVA" style="border-radius:6px;">
+                <div class="pago-nombre">BBVA</div>
+                <div class="pago-detalle">Tarjetas BBVA<br><strong style="color:#fc8403">¡Promoción especial!</strong></div>
+            </div>
+
+            <!-- Cuotas -->
+            <div class="pago-card">
+                <svg class="pago-logo-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="80" height="50" rx="8" fill="#296d36"/>
+                    <text x="40" y="20" font-family="Arial" font-weight="900" font-size="13" fill="white" text-anchor="middle">HASTA</text>
+                    <text x="40" y="36" font-family="Arial" font-weight="900" font-size="16" fill="#e8c61a" text-anchor="middle">12 CUOTAS</text>
+                </svg>
+                <div class="pago-nombre">Cuotas sin interés</div>
+                <div class="pago-detalle">Hasta 12 cuotas<br>con tarjetas seleccionadas</div>
+            </div>
+
+        </div>
+
+        <!-- chips informativos -->
+        <div class="pagos-info-row">
+            <div class="pago-chip"><i class="fas fa-credit-card"></i> Crédito y débito</div>
+            <div class="pago-chip"><i class="fas fa-university"></i> Todos los bancos</div>
+            <div class="pago-chip"><i class="fas fa-qrcode"></i> Pago con QR</div>
+            <div class="pago-chip"><i class="fas fa-shield-alt"></i> Pago seguro</div>
+            <div class="pago-chip"><i class="fas fa-calendar-check"></i> Hasta 12 cuotas</div>
+        </div>
+    </section>
+
+    <!-- ─── WHATSAPP ─── -->
+    <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20tengo%20una%20consulta." class="whatsapp-flotante" target="_blank" title="Envianos un mensaje">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- ─── FOOTER ─── -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="footer-brand">Vitamina <span>D</span> Dietética</div>
+                <p>Tu tienda de productos naturales y saludables en Quilmes, Buenos Aires.</p>
+                <div class="footer-social">
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/5491144468486" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="mailto:vitamitaD@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Navegación</h4>
+                <a href="#categorias">Categorías</a>
+                <a href="#promos">Promos</a>
+                <a href="#mapa">Cómo llegar</a>
+                <a href="javascript:void(0)" id="btn-faq-footer">Preguntas Frecuentes</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <a href="mailto:vitamitaD@gmail.com"><i class="fas fa-envelope" style="margin-right:6px;"></i> vitamitaD@gmail.com</a>
+                <a href="https://wa.me/5491144468486" target="_blank"><i class="fab fa-whatsapp" style="margin-right:6px;"></i> +54 9 11 4446-8486</a>
+                <p><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i> Nicolás Videla 147, Quilmes</p>
+            </div>
+            <div class="footer-col">
+                <h4>Horarios</h4>
+                <p>Lunes a Viernes: 9:00 – 19:00</p>
+                <p>Sábados: 9:00 – 14:00</p>
+                <p>Domingos: Cerrado</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 <strong>Vitamina D Dietética</strong> — Todos los derechos reservados.</p>
+            <p style="margin-top:4px;">Diseño y desarrollo por <strong>Vidmar &amp; Guerrero</strong></p>
+        </div>
+    </footer>
+
+    <!-- ─── CARRITO PANEL ─── -->
+    <div class="carrito-overlay" id="carritoOverlay"></div>
+    <div class="carrito-panel" id="carritoPanel">
+        <div class="carrito-header">
+            <h3>🛒 Mi Carrito</h3>
+            <button class="carrito-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="carrito-items" id="carritoItems">
+            <div class="carrito-vacio" id="carritoVacio">
+                <i class="fas fa-shopping-basket"></i>
+                <p>Tu carrito está vacío</p>
+            </div>
+        </div>
+        <div class="carrito-footer">
+            <div class="carrito-total">
+                <span>Total</span>
+                <strong id="carritoTotal">$0</strong>
+            </div>
+            <button class="btn-comprar-todo">
+                <i class="fab fa-whatsapp"></i> Generar link de pago
+            </button>
+        </div>
+    </div>
+
+    <!-- ─── PRODUCT DETAIL MODAL (PDP) ─── -->
+    <div class="pdp-overlay" id="pdpOverlay"></div>
+    <div class="pdp-modal" id="pdpModal">
+        <button class="pdp-close"><i class="fas fa-times"></i></button>
+        <div class="pdp-content">
+            <div class="pdp-left">
+                <div class="pdp-image-container" id="pdpImageContainer">
+                    <img id="pdpImage" src="" alt="Producto">
+                    <div class="pdp-zoom-lens" id="pdpZoomLens"></div>
+                </div>
+                <div class="pdp-zoom-result" id="pdpZoomResult"></div>
+            </div>
+            <div class="pdp-right">
+                <div id="pdpCategoria" class="producto-categoria-tag"></div>
+                <h2 id="pdpNombre"></h2>
+                <div class="pdp-precio-row">
+                    <span id="pdpPrecio" class="precio-actual"></span>
+                    <span id="pdpPrecioAntes" class="precio-tachado"></span>
+                </div>
+                <p id="pdpDesc" class="pdp-descripcion"></p>
+                
+                <div class="pdp-actions">
+                    <div class="cantidad-control">
+                        <button class="cantidad-btn" id="pdpMinus">−</button>
+                        <span class="cantidad-num" id="pdpQty">1</span>
+                        <button class="cantidad-btn" id="pdpPlus">+</button>
+                    </div>
+                    <button class="btn-agregar" id="pdpAddBtn">
+                        <i class="fas fa-cart-plus"></i> Agregar al carrito
+                    </button>
+                </div>
+
+                <div class="pdp-info-extra">
+                    <div class="pdp-info-item">
+                        <i class="fas fa-truck"></i>
+                        <span>Envíos a todo el país</span>
+                    </div>
+                    <div class="pdp-info-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Compra 100% segura</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js" type="module" defer></script>
+</body>
+</html>

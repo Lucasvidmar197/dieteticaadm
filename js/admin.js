@@ -54,8 +54,13 @@ function getCategorySummary(prod) {
 }
 
 async function ensureCatalogRefs() {
-    catalogConfig = await getActiveCatalogConfig();
-    catalogRefs = await getCatalogCollections();
+    try {
+        catalogConfig = await getActiveCatalogConfig();
+        catalogRefs = await getCatalogCollections();
+    } catch (err) {
+        console.error("Error al obtener configuración del catálogo:", err);
+        showToast("Error al cargar catálogo activo", "error");
+    }
 }
 
 // Toast Helper

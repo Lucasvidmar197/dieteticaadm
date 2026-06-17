@@ -33,6 +33,7 @@ function getProductImage(producto) {
 // ─── RENDER PRODUCTOS ───
 function renderProductos(lista) {
     const grid = document.getElementById('productos-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     
     if(lista.length === 0) {
@@ -53,7 +54,7 @@ function renderProductos(lista) {
             <div class="producto-body">
                 <div class="producto-categoria-tag">${getPrimaryCategory(p)}</div>
                 <div class="producto-nombre">${p.nombre}</div>
-                <div class="producto-desc">${p.desc}</div>
+                <div class="producto-desc">${p.desc || ''}</div>
                 <div class="producto-precio-row">
                     <span class="precio-actual">$${p.precio.toLocaleString('es-AR')}</span>
                     ${p.precioAntes ? `<span class="precio-tachado">$${p.precioAntes.toLocaleString('es-AR')}</span>` : ''}
@@ -70,6 +71,49 @@ function renderProductos(lista) {
             </div>
         </div>`;
     });
+}
+
+// ─── PDP MODAL (Product Detail Page) ───
+function openPDP(productId) {
+    const p = productos.find(x => x.id === productId);
+    if (!p) return;
+
+    const modal = document.getElementById('pdpModal');
+    const overlay = document.getElementById('pdpOverlay');
+    if (!modal || !overlay) return;
+
+    document.getElementById('pdpImage').src = getProductImage(p);
+    document.getElementById('pdpCategoria').textContent = getPrimaryCategory(p);
+    document.getElementById('pdpNombre').textContent = p.nombre;
+    document.getElementById('pdpPrecio').textContent = `$${p.precio.toLocaleString('es-AR')}`;
+    document.getElementById('pdpPrecioAntes').textContent = p.precioAntes ? `$${p.precioAntes.toLocaleString('es-AR')}` : '';
+    document.getElementById('pdpDesc').textContent = p.desc || 'Sin descripción disponible.';
+    document.getElementById('pdpQty').textContent = cantidades[p.id] || 1;
+
+    // Guardar ID actual en el botón de agregar del modal
+    document.getElementById('pdpAddBtn').onclick = () => agregarAlCarrito(p.id);
+    
+    // Controles de cantidad en el modal
+    document.getElementById('pdpPlus').onclick = () => {
+        cambiarCantidad(p.id, 1);
+        document.getElementById('pdpQty').textContent = cantidades[p.id];
+    };
+    document.getElementById('pdpMinus').onclick = () => {
+        cambiarCantidad(p.id, -1);
+        document.getElementById('pdpQty').textContent = cantidades[p.id];
+    };
+
+    modal.classList.add('activo');
+    overlay.classList.add('activo');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePDP() {
+    const modal = document.getElementById('pdpModal');
+    const overlay = document.getElementById('pdpOverlay');
+    if (modal) modal.classList.remove('activo');
+    if (overlay) overlay.classList.remove('activo');
+    document.body.style.overflow = 'auto';
 }
 
 // ─── FILTROS Y BÚSQUEDA ───
@@ -309,11 +353,20 @@ async function inicializarCatalogo() {
     });
 
     // Buscador
-    const buscador = document.getElementById('buscador');
+    const buscador = document.getElementById('buscador-header') || document.getElementById('buscador');
     if(buscador) {
         buscador.addEventListener('input', (e) => {
             searchTerm = e.target.value;
             filtrarProductos(currentFilter, null);
+        });
+    }
+
+    // FAQ Scroll
+    const faqBtn = document.getElementById('btn-faq-nav');
+    if (faqBtn) {
+        faqBtn.addEventListener('click', () => {
+            const faqSection = document.getElementById('faq');
+            if (faqSection) faqSection.scrollIntoView({ behavior: 'smooth' });
         });
     }
 
@@ -330,10 +383,23 @@ async function inicializarCatalogo() {
         const id = card.dataset.id;
         const action = e.target.dataset.action;
 
-        if (action === 'increase') cambiarCantidad(id, 1);
-        if (action === 'decrease') cambiarCantidad(id, -1);
-        if (action === 'add' || e.target.closest('.btn-agregar')) agregarAlCarrito(id);
+        if (action === 'increase') {
+            cambiarCantidad(id, 1);
+        } else if (action === 'decrease') {
+            cambiarCantidad(id, -1);
+        } else if (action === 'add' || e.target.closest('.btn-agregar')) {
+            agregarAlCarrito(id);
+        } else {
+            // Si hace click en cualquier otro lado de la card (imagen, nombre, etc)
+            openPDP(id);
+        }
     });
+
+    // PDP Modal Close
+    const closeBtn = document.querySelector('.pdp-close');
+    const pdpOverlay = document.getElementById('pdpOverlay');
+    if (closeBtn) closeBtn.addEventListener('click', closePDP);
+    if (pdpOverlay) pdpOverlay.addEventListener('click', closePDP);
 
     // Cart items actions
     document.getElementById('carritoItems').addEventListener('click', (e) => {
