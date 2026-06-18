@@ -515,7 +515,10 @@ function parseSourceWorkbook(sourceFilePath) {
                 nombre: prod.variantName,
                 precio: prod.precio,
                 codigo: prod.codigo,
-                originalNombre: prod.originalNombre
+                originalNombre: prod.originalNombre,
+                // Conservar data del producto original por si la necesitamos en la UI
+                imagenUrl: prod.imagenUrl || "",
+                desc: prod.desc || ""
             });
         }
 
@@ -673,6 +676,24 @@ function resolveExistingProduct(sourceProduct, indexes) {
 }
 
 function buildMergedProduct(sourceProduct, existingProduct) {
+    // Buscar si el existingProduct tiene variantes previas o matchear la data
+    const existingVariantsMap = new Map();
+    if (existingProduct && existingProduct.variantes) {
+        existingProduct.variantes.forEach(v => {
+            existingVariantsMap.set(v.nombre, v);
+        });
+    }
+
+    // Merge de variantes
+    const mergedVariantes = (sourceProduct.variantes || []).map(sv => {
+        const ev = existingVariantsMap.get(sv.nombre);
+        return {
+            ...sv,
+            imagenUrl: ev?.imagenUrl && ev.imagenUrl !== "img/product-placeholder.svg" ? ev.imagenUrl : sv.imagenUrl,
+            desc: ev?.desc || sv.desc || ""
+        };
+    });
+
     const merged = {
         codigo: sourceProduct.codigo || existingProduct?.codigo || "",
         ean: sourceProduct.ean || existingProduct?.ean || "",
@@ -691,7 +712,7 @@ function buildMergedProduct(sourceProduct, existingProduct) {
         activo: sourceProduct.activo,
         desc: buildDescription(sourceProduct, existingProduct),
         imagenUrl: existingProduct?.imagenUrl && existingProduct.imagenUrl !== "img/product-placeholder.svg" ? existingProduct.imagenUrl : "",
-        variantes: sourceProduct.variantes || existingProduct?.variantes || []
+        variantes: mergedVariantes
     };
 
     return merged;

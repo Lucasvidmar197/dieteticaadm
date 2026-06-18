@@ -441,19 +441,41 @@ function openProductDetail(id) {
     if (p.variantes && p.variantes.length > 1) {
         variantesContainer.style.display = 'block';
         variantesSelect.innerHTML = p.variantes.map(v => 
-            `<option value="${v.id}" data-precio="${v.precio}">${v.nombre} - $${v.precio.toLocaleString('es-AR')}</option>`
+            `<option value="${v.id}" data-precio="${v.precio}" data-img="${v.imagenUrl || ''}" data-desc="${v.desc || ''}">${v.nombre} - $${v.precio.toLocaleString('es-AR')}</option>`
         ).join('');
         
         // Seleccionar el primero por defecto
         currentPDPVariantId = p.variantes[0].id;
         document.getElementById('pdpPrecio').textContent = `$${p.variantes[0].precio.toLocaleString('es-AR')}`;
         
-        // Listener para cambiar precio
+        // Cargar imagen de la variante por defecto si tiene
+        if (p.variantes[0].imagenUrl) {
+            document.getElementById('pdpImage').src = p.variantes[0].imagenUrl;
+        }
+        if (p.variantes[0].desc) {
+            document.getElementById('pdpDesc').textContent = p.variantes[0].desc;
+        }
+        
+        // Listener para cambiar precio, imagen y desc
         variantesSelect.onchange = (e) => {
             currentPDPVariantId = e.target.value;
             const selectedOption = e.target.options[e.target.selectedIndex];
             const newPrice = parseFloat(selectedOption.dataset.precio);
             document.getElementById('pdpPrecio').textContent = `$${newPrice.toLocaleString('es-AR')}`;
+            
+            if (selectedOption.dataset.img) {
+                document.getElementById('pdpImage').src = selectedOption.dataset.img;
+                initZoom('pdpImage', 'pdpZoomResult', 'pdpZoomLens');
+            } else {
+                document.getElementById('pdpImage').src = finalImageUrl;
+            }
+            
+            if (selectedOption.dataset.desc) {
+                document.getElementById('pdpDesc').textContent = selectedOption.dataset.desc;
+            } else {
+                document.getElementById('pdpDesc').textContent = p.desc || 'Sin descripción disponible.';
+            }
+            
             updatePDPButtonState(p.id, currentPDPVariantId);
         };
     } else {
