@@ -27,6 +27,8 @@ const cancelEditBtn = document.getElementById('cancelEditBtn');
 const prevEditBtn = document.getElementById('prevEditBtn');
 const nextEditBtn = document.getElementById('nextEditBtn');
 const autoEditToggle = document.getElementById('autoEditToggle');
+const btnAddVariant = document.getElementById('btnAddVariant');
+const variantesList = document.getElementById('variantesList');
 
 // DOM Elements - Login
 const loginOverlay = document.getElementById('loginOverlay');
@@ -41,6 +43,66 @@ const logoutBtn = document.getElementById('logoutBtn');
 let localProductos = {};
 let editMode = false;
 let currentEditId = null;
+let currentVariantes = [];
+
+// ─── LÓGICA DE VARIANTES ───
+function renderVariantes() {
+    if (!variantesList) return;
+    
+    variantesList.innerHTML = '';
+    
+    if (currentVariantes.length === 0) {
+        variantesList.innerHTML = '<div style="text-align: center; color: #a0aec0; padding: 10px;">Sin opciones. El producto se venderá con el precio base.</div>';
+        return;
+    }
+    
+    currentVariantes.forEach((v, index) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.gap = '10px';
+        row.style.alignItems = 'center';
+        
+        row.innerHTML = `
+            <input type="text" class="var-nombre" placeholder="Nombre (Ej: 1 kg)" value="${v.nombre}" style="flex: 2; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <input type="number" class="var-precio" placeholder="Precio ($)" value="${v.precio}" style="flex: 1; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;" min="0">
+            <button type="button" class="btn-icon delete" onclick="eliminarVariante(${index})" style="background: #fed7d7; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer;">
+                <i class="fas fa-trash" style="color: #e53e3e;"></i>
+            </button>
+        `;
+        variantesList.appendChild(row);
+    });
+}
+
+if (btnAddVariant) {
+    btnAddVariant.addEventListener('click', () => {
+        currentVariantes.push({ id: crypto.randomUUID().slice(0, 8), nombre: '', precio: '' });
+        renderVariantes();
+    });
+}
+
+window.eliminarVariante = (index) => {
+    currentVariantes.splice(index, 1);
+    renderVariantes();
+};
+
+function getVariantesForm() {
+    const nombres = document.querySelectorAll('.var-nombre');
+    const precios = document.querySelectorAll('.var-precio');
+    const variantes = [];
+    
+    for (let i = 0; i < nombres.length; i++) {
+        const n = nombres[i].value.trim();
+        const p = parseFloat(precios[i].value);
+        if (n && !isNaN(p)) {
+            variantes.push({
+                id: currentVariantes[i]?.id || crypto.randomUUID().slice(0, 8),
+                nombre: n,
+                precio: p
+            });
+        }
+    }
+    return variantes;
+}
 
 // ─── UTILIDADES ───
 function normalizarTexto(texto) {
@@ -161,6 +223,7 @@ form.addEventListener('submit', async (e) => {
 
     const descripcion = document.getElementById('descripcion').value;
     const imagenUrl = document.getElementById('imagenUrlInput').value;
+    const variantes = getVariantesForm();
 
     // UI Loading state
     btnText.textContent = editMode ? "Actualizando..." : "Guardando...";
@@ -182,7 +245,8 @@ form.addEventListener('submit', async (e) => {
                 categoria: categoriaPrincipal, // Mantenemos para compatibilidad
                 categorias: categorias, // Nuevo array de categorías
                 desc: descripcion,
-                imagenUrl
+                imagenUrl,
+                variantes
             });
             showToast("Producto actualizado", "success");
             
@@ -208,10 +272,13 @@ form.addEventListener('submit', async (e) => {
                 categorias: categorias, // Nuevo array de categorías
                 desc: descripcion,
                 imagenUrl,
+                variantes,
                 createdAt: new Date()
             });
             showToast("Producto cargado exitosamente", "success");
             form.reset();
+            currentVariantes = [];
+            renderVariantes();
             // Resetear checkboxes manual
             document.querySelectorAll('input[name="productoCategorias"]').forEach(cb => cb.checked = false);
         }
@@ -232,6 +299,8 @@ form.addEventListener('submit', async (e) => {
 cancelEditBtn.addEventListener('click', () => {
     editMode = false;
     currentEditId = null;
+    currentVariantes = [];
+    renderVariantes();
     form.reset();
     document.querySelectorAll('input[name="productoCategorias"]').forEach(cb => cb.checked = false);
     
@@ -370,6 +439,10 @@ window.prepararEdicion = (id) => {
     document.getElementById('descripcion').value = prod.desc;
     document.getElementById('imagenUrlInput').value = prod.imagenUrl;
     
+    // Variantes
+    currentVariantes = prod.variantes ? JSON.parse(JSON.stringify(prod.variantes)) : [];
+    renderVariantes();
+    
     // UI
     document.getElementById('btnText').textContent = "Actualizar Producto";
     cancelEditBtn.classList.remove('d-none');
@@ -468,10 +541,13 @@ function renderAdminProductos() {
                 ? prod.imagenUrl 
                 : 'https://via.placeholder.com/50';
 
+            const tieneVariantes = prod.variantes && prod.variantes.length > 0;
+            const infoVariantes = tieneVariantes ? `<br><small style="color: #38a169;">${prod.variantes.length} opciones</small>` : '';
+
             html += `
                 <tr>
                     <td><img src="${finalImageUrl}" alt="${prod.nombre}" class="prod-img-preview" loading="lazy"></td>
-                    <td><strong>${prod.nombre}</strong><br><small>${prod.desc || ''}</small></td>
+                    <td><strong>${prod.nombre}</strong><br><small>${prod.desc || ''}</small>${infoVariantes}</td>
                     <td>${catsHtml}</td>
                     <td>$${prod.precio.toLocaleString('es-AR')}</td>
                     <td>
@@ -613,6 +689,10 @@ window.duplicarProducto = (id) => {
 
     document.getElementById('descripcion').value = prod.desc;
     document.getElementById('imagenUrlInput').value = prod.imagenUrl;
+    
+    // Variantes
+    currentVariantes = prod.variantes ? JSON.parse(JSON.stringify(prod.variantes)).map(v => ({...v, id: crypto.randomUUID().slice(0, 8)})) : [];
+    renderVariantes();
     
     // UI
     document.getElementById('btnText').textContent = "Guardar Producto";

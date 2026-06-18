@@ -397,6 +397,24 @@ function pickIdentifier(rawCode, article, duplicateCodeMap) {
     };
 }
 
+function extractVariantInfo(displayName) {
+    const match = displayName.match(/(.*?)\s+(?:x|-)\s+(.*)/i);
+    if (match) {
+        return {
+            baseName: match[1].trim(),
+            variantName: match[2].trim()
+        };
+    }
+    const match2 = displayName.match(/(.*?)\s+(\d+(?:,\d+|\.\d+)?\s*(?:kg|g|gr|grs|ml|l|cc|lt|lts|u|un|unidades))$/i);
+    if (match2) {
+         return {
+            baseName: match2[1].trim(),
+            variantName: match2[2].trim()
+        };
+    }
+    return null;
+}
+
 function parseSourceWorkbook(sourceFilePath) {
     const workbook = XLSX.readFile(sourceFilePath);
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -433,7 +451,7 @@ function parseSourceWorkbook(sourceFilePath) {
         return accumulator;
     }, new Map());
 
-    const products = rawRows.map((row) => {
+    const rawProducts = rawRows.map((row) => {
         const identifier = pickIdentifier(row.code, row.article, duplicateCodeMap);
         const categoriaPrincipal = row.primaryCategory;
         const alimentaciones = dedupeList(row.alimentation);
@@ -441,8 +459,12 @@ function parseSourceWorkbook(sourceFilePath) {
         const brand = inferBrand(row.article);
         const isDiscontinued = normalizeString(categoriaPrincipal).includes("discontinuado")
             || normalizeString(row.code).includes("discontinuado");
-        const nombre = buildDisplayName(row.article);
-        const slug = slugify(nombre || row.article);
+        const rawNombre = buildDisplayName(row.article);
+        
+        const variantInfo = extractVariantInfo(rawNombre);
+        const baseName = variantInfo ? variantInfo.baseName : rawNombre;
+        const variantName = variantInfo ? variantInfo.variantName : "Único";
+        const slug = slugify(baseName || row.article);
 
         return {
             uniqueKey: identifier.key,
@@ -452,7 +474,9 @@ function parseSourceWorkbook(sourceFilePath) {
             codigo: isPlaceholderCode(row.code) ? "" : sanitizeCode(row.code),
             ean: row.ean ? String(row.ean).trim() : "",
             articulo: row.article,
-            nombre,
+            nombre: baseName,
+            originalNombre: rawNombre,
+            variantName,
             marca: brand,
             precio: toNumber(row.price),
             categoria: categoriaPrincipal,
@@ -467,6 +491,46 @@ function parseSourceWorkbook(sourceFilePath) {
             sourceRowNumber: row.rowNumber
         };
     });
+
+    const groupedProductsMap = new Map();
+
+    rawProducts.forEach((prod) => {
+        const key = normalizeString(prod.nombre);
+        if (!key) return;
+
+        if (!groupedProductsMap.has(key)) {
+            groupedProductsMap.set(key, {
+                ...prod,
+                variantes: []
+            });
+        }
+
+        const group = groupedProductsMap.get(key);
+
+        // Agregamos la variante si no está repetida exactamente
+        const varianteExistente = group.variantes.find(v => v.nombre === prod.variantName);
+        if (!varianteExistente) {
+            group.variantes.push({
+                id: prod.codigo || crypto.randomUUID().slice(0, 8),
+                nombre: prod.variantName,
+                precio: prod.precio,
+                codigo: prod.codigo,
+                originalNombre: prod.originalNombre
+            });
+        }
+
+        // El precio base del grupo será el menor precio de las variantes
+        if (prod.precio < group.precio) {
+            group.precio = prod.precio;
+        }
+        
+        // Si hay una variante que está activa, el grupo está activo
+        if (prod.activo) {
+            group.activo = true;
+        }
+    });
+
+    const products = Array.from(groupedProductsMap.values());
 
     return {
         workbookName: path.basename(sourceFilePath),
@@ -626,7 +690,8 @@ function buildMergedProduct(sourceProduct, existingProduct) {
         precioAntes: null,
         activo: sourceProduct.activo,
         desc: buildDescription(sourceProduct, existingProduct),
-        imagenUrl: existingProduct?.imagenUrl && existingProduct.imagenUrl !== "img/product-placeholder.svg" ? existingProduct.imagenUrl : ""
+        imagenUrl: existingProduct?.imagenUrl && existingProduct.imagenUrl !== "img/product-placeholder.svg" ? existingProduct.imagenUrl : "",
+        variantes: sourceProduct.variantes || existingProduct?.variantes || []
     };
 
     return merged;

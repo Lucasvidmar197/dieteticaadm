@@ -25,6 +25,7 @@ let searchTerm = '';
 let productosFiltrados = [];
 let productosMostrados = 0;
 let currentPDPId = null;
+let currentPDPVariantId = null; // Para saber qué variante está seleccionada
 let currentPage = 1;
 const PRODUCTOS_POR_PAGINA = 6;
 
@@ -59,7 +60,12 @@ function renderProductos(lista) {
     let html = '';
 
     productosARenderizar.forEach(p => {
-        const enCarrito = carrito[p.id];
+        const tieneVariantes = p.variantes && p.variantes.length > 1;
+        // Revisar si ALGUNA variante de este producto está en el carrito
+        const enCarrito = tieneVariantes 
+            ? Object.values(carrito).some(item => item.baseId === p.id)
+            : carrito[p.id];
+            
         if (!cantidades[p.id]) cantidades[p.id] = 1;
 
         let catsToRender = p.categorias || (p.categoria ? [p.categoria] : ['Varios']);
@@ -68,6 +74,8 @@ function renderProductos(lista) {
         const finalImageUrl = (p.imagenUrl && p.imagenUrl !== "img/product-placeholder.svg") 
             ? p.imagenUrl 
             : 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+
+        const precioText = tieneVariantes ? `Desde $${p.precio.toLocaleString('es-AR')}` : `$${p.precio.toLocaleString('es-AR')}`;
 
         html += `
         <div class="producto-card" data-id="${p.id}" data-cat="${p.categoria}">
@@ -80,17 +88,17 @@ function renderProductos(lista) {
                 <div class="producto-nombre">${p.nombre}</div>
                 <div class="producto-desc">${p.desc || ''}</div>
                 <div class="producto-precio-row">
-                    <span class="precio-actual">$${p.precio.toLocaleString('es-AR')}</span>
+                    <span class="precio-actual">${precioText}</span>
                     ${p.precioAntes ? `<span class="precio-tachado">$${p.precioAntes.toLocaleString('es-AR')}</span>` : ''}
                 </div>
-                <div class="cantidad-control">
+                <div class="cantidad-control" style="${tieneVariantes ? 'visibility: hidden;' : ''}">
                     <button class="cantidad-btn" data-action="decrease">−</button>
                     <span class="cantidad-num" id="qty-${p.id}">${cantidades[p.id]}</span>
                     <button class="cantidad-btn" data-action="increase">+</button>
                 </div>
-                <button class="btn-agregar ${enCarrito ? 'agregado' : ''}" data-action="add">
-                    <i class="fas ${enCarrito ? 'fa-check' : 'fa-cart-plus'}"></i>
-                    ${enCarrito ? '¡Agregado!' : 'Agregar al carrito'}
+                <button class="btn-agregar ${enCarrito && !tieneVariantes ? 'agregado' : ''}" data-action="${tieneVariantes ? 'view' : 'add'}">
+                    <i class="fas ${enCarrito && !tieneVariantes ? 'fa-check' : (tieneVariantes ? 'fa-eye' : 'fa-cart-plus')}"></i>
+                    ${tieneVariantes ? 'Ver opciones' : (enCarrito ? '¡Agregado!' : 'Agregar al carrito')}
                 </button>
             </div>
         </div>`;
@@ -274,36 +282,65 @@ function cambiarCantidad(id, delta) {
 }
 
 // ─── CARRITO ───
-function agregarAlCarrito(id) {
+function agregarAlCarrito(id, variantId = null) {
     const p = productos.find(x => x.id === id);
     if (!p) return;
 
+    let cartId = id;
+    let finalProduct = { ...p };
+
+    if (variantId) {
+        cartId = `${id}-${variantId}`;
+        const variante = p.variantes.find(v => v.id === variantId);
+        if (variante) {
+            finalProduct.precio = variante.precio;
+            finalProduct.nombre = `${p.nombre} (${variante.nombre})`;
+            finalProduct.baseId = id;
+        }
+    }
+
     const qty = cantidades[id] || 1;
-    if (carrito[id]) {
-        carrito[id].cantidad += qty;
+    if (carrito[cartId]) {
+        carrito[cartId].cantidad += qty;
     } else {
-        carrito[id] = { ...p, cantidad: qty };
+        carrito[cartId] = { ...finalProduct, cantidad: qty, cartId };
     }
+    
     renderCarrito();
-    const card = document.querySelector(`.producto-card[data-id="${id}"]`);
-    const btn = card ? card.querySelector('.btn-agregar') : null;
-    if (btn) {
-        btn.classList.add('agregado');
-        btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+    
+    // Si estamos agregando desde la grid y no tiene variantes
+    if (!variantId) {
+        const card = document.querySelector(`.producto-card[data-id="${id}"]`);
+        const btn = card ? card.querySelector('.btn-agregar') : null;
+        if (btn && !btn.dataset.action.includes('view')) {
+            btn.classList.add('agregado');
+            btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+        }
     }
-    showToast(`✅ ${p.nombre} agregado`);
+    
+    showToast(`✅ ${finalProduct.nombre} agregado`);
     actualizarBadge();
 }
 
-function quitarDelCarrito(id) {
-    delete carrito[id];
+function quitarDelCarrito(cartId) {
+    const item = carrito[cartId];
+    if (!item) return;
+    
+    const baseId = item.baseId || cartId;
+    delete carrito[cartId];
     renderCarrito();
-    const card = document.querySelector(`.producto-card[data-id="${id}"]`);
-    const btn = card ? card.querySelector('.btn-agregar') : null;
-    if (btn) {
-        btn.classList.remove('agregado');
-        btn.innerHTML = '<i class="fas fa-cart-plus"></i> Agregar al carrito';
+    
+    // Restaurar botón de la grid si ya no queda ninguna variante de este producto en el carrito
+    const todaviaEnCarrito = Object.values(carrito).some(x => x.baseId === baseId || x.id === baseId);
+    if (!todaviaEnCarrito) {
+        const card = document.querySelector(`.producto-card[data-id="${baseId}"]`);
+        const btn = card ? card.querySelector('.btn-agregar') : null;
+        if (btn && !btn.dataset.action.includes('view')) {
+            btn.classList.remove('agregado');
+            btn.innerHTML = '<i class="fas fa-cart-plus"></i> Agregar al carrito';
+        }
     }
+    
     actualizarBadge();
 }
 
@@ -318,8 +355,8 @@ function renderCarrito() {
             </div>`;
     } else {
         container.innerHTML = items.map(item => `
-            <div class="carrito-item" data-id="${item.id}">
-                <img src="${item.imagenUrl}" alt="${item.nombre}" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover;">
+            <div class="carrito-item" data-cart-id="${item.cartId || item.id}">
+                <img src="${item.imagenUrl || 'https://via.placeholder.com/40'}" alt="${item.nombre}" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover;">
                 <div class="carrito-item-info">
                     <div class="carrito-item-nombre">${item.nombre}</div>
                     <div class="carrito-item-precio">$${(item.precio * item.cantidad).toLocaleString('es-AR')}</div>
@@ -396,24 +433,43 @@ function openProductDetail(id) {
     document.getElementById('pdpCategoria').textContent = catsToRender.join(', ');
     
     document.getElementById('pdpNombre').textContent = p.nombre;
-    document.getElementById('pdpPrecio').textContent = `$${p.precio.toLocaleString('es-AR')}`;
-    document.getElementById('pdpPrecioAntes').textContent = p.precioAntes ? `$${p.precioAntes.toLocaleString('es-AR')}` : '';
     document.getElementById('pdpDesc').textContent = p.desc || 'Sin descripción disponible.';
+
+    const variantesContainer = document.getElementById('pdpVariantesContainer');
+    const variantesSelect = document.getElementById('pdpVariantesSelect');
+    
+    if (p.variantes && p.variantes.length > 1) {
+        variantesContainer.style.display = 'block';
+        variantesSelect.innerHTML = p.variantes.map(v => 
+            `<option value="${v.id}" data-precio="${v.precio}">${v.nombre} - $${v.precio.toLocaleString('es-AR')}</option>`
+        ).join('');
+        
+        // Seleccionar el primero por defecto
+        currentPDPVariantId = p.variantes[0].id;
+        document.getElementById('pdpPrecio').textContent = `$${p.variantes[0].precio.toLocaleString('es-AR')}`;
+        
+        // Listener para cambiar precio
+        variantesSelect.onchange = (e) => {
+            currentPDPVariantId = e.target.value;
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const newPrice = parseFloat(selectedOption.dataset.precio);
+            document.getElementById('pdpPrecio').textContent = `$${newPrice.toLocaleString('es-AR')}`;
+            updatePDPButtonState(p.id, currentPDPVariantId);
+        };
+    } else {
+        variantesContainer.style.display = 'none';
+        currentPDPVariantId = p.variantes && p.variantes.length === 1 ? p.variantes[0].id : null;
+        document.getElementById('pdpPrecio').textContent = `$${p.precio.toLocaleString('es-AR')}`;
+    }
+
+    document.getElementById('pdpPrecioAntes').textContent = p.precioAntes ? `$${p.precioAntes.toLocaleString('es-AR')}` : '';
     
     // Quantity
     if (!cantidades[id]) cantidades[id] = 1;
     document.getElementById('pdpQty').textContent = cantidades[id];
 
     // Button state
-    const btn = document.getElementById('pdpAddBtn');
-    const enCarrito = carrito[id];
-    if (enCarrito) {
-        btn.classList.add('agregado');
-        btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
-    } else {
-        btn.classList.remove('agregado');
-        btn.innerHTML = '<i class="fas fa-cart-plus"></i> Agregar al carrito';
-    }
+    updatePDPButtonState(id, currentPDPVariantId);
 
     // Show modal
     modal.classList.add('active');
@@ -423,6 +479,20 @@ function openProductDetail(id) {
 
     // Initialize zoom
     initZoom('pdpImage', 'pdpZoomResult', 'pdpZoomLens');
+}
+
+function updatePDPButtonState(baseId, variantId) {
+    const btn = document.getElementById('pdpAddBtn');
+    const cartId = variantId ? `${baseId}-${variantId}` : baseId;
+    const enCarrito = carrito[cartId];
+    
+    if (enCarrito) {
+        btn.classList.add('agregado');
+        btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+    } else {
+        btn.classList.remove('agregado');
+        btn.innerHTML = '<i class="fas fa-cart-plus"></i> Agregar al carrito';
+    }
 }
 
 function closeProductDetail() {
@@ -711,10 +781,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('pdpAddBtn').addEventListener('click', () => {
         if (currentPDPId) {
-            agregarAlCarrito(currentPDPId);
-            const btn = document.getElementById('pdpAddBtn');
-            btn.classList.add('agregado');
-            btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+            agregarAlCarrito(currentPDPId, currentPDPVariantId);
+            
+            // Si acabamos de agregar y hay variantes, recargamos estado del botón
+            updatePDPButtonState(currentPDPId, currentPDPVariantId);
             
             // Feedback visual abriendo el carrito (opcional pero muy útil en móvil)
             const panel = document.getElementById('carritoPanel');
@@ -730,7 +800,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('carritoItems').addEventListener('click', (e) => {
         const removeBtn = e.target.closest('.carrito-item-remove');
         if (removeBtn) {
-            const id = removeBtn.closest('.carrito-item').dataset.id;
+            const id = removeBtn.closest('.carrito-item').dataset.cartId;
             quitarDelCarrito(id);
         }
     });
