@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Vitamina D</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
@@ -12,31 +12,86 @@
 <body>
     <!-- ─── LOGIN OVERLAY ─── -->
     <div class="login-overlay" id="loginOverlay">
+        <!-- Elementos decorativos flotantes -->
+        <div class="float-element leaf-1"><i class="fas fa-leaf"></i></div>
+        <div class="float-element leaf-2"><i class="fas fa-leaf"></i></div>
+        <div class="float-element circle-1"></div>
+        <div class="float-element circle-2"></div>
+        <div class="float-element circle-3"></div>
+        <div class="float-element dot-1"></div>
+        <div class="float-element dot-2"></div>
+        <div class="float-element dot-3"></div>
+        <div class="float-element dot-4"></div>
+        <div class="float-element dot-5"></div>
+        <div class="float-element vine-1"><i class="fas fa-seedling"></i></div>
+        <div class="float-element vine-2"><i class="fas fa-seedling"></i></div>
+
         <div class="login-card">
+            <div class="login-card-glow"></div>
+            
             <div class="login-header">
+                <div class="login-logo-circle">
+                    <div class="logo-ring"></div>
+                    <i class="fas fa-leaf"></i>
+                </div>
                 <h2>Vitamina <span>D</span></h2>
                 <p>Panel de Administración</p>
+                <div class="header-divider">
+                    <span></span>
+                    <i class="fas fa-circle"></i>
+                    <span></span>
+                </div>
             </div>
+
             <form id="loginForm">
-                <div class="form-group">
-                    <label for="adminEmail"><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="adminEmail" required placeholder="admin@dietetica.com">
+                <div class="form-group input-group">
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="adminEmail" required placeholder=" ">
+                        <label class="floating-label" for="adminEmail">Correo electrónico</label>
+                        <div class="input-border"></div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="adminPassword"><i class="fas fa-lock"></i> Contraseña</label>
-                    <input type="password" id="adminPassword" required placeholder="••••••••">
+
+                <div class="form-group input-group">
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="adminPassword" required placeholder=" ">
+                        <label class="floating-label" for="adminPassword">Contraseña</label>
+                        <div class="input-border"></div>
+                        <button type="button" class="toggle-password" id="togglePassword" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="btn-principal w-100" id="loginBtn">
-                    <span id="loginBtnText">Ingresar</span>
-                    <i class="fas fa-spinner fa-spin d-none" id="loginSpinner"></i>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span class="btn-bg"></span>
+                    <span class="btn-content">
+                        <span id="loginBtnText">Ingresar</span>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
+                        <i class="fas fa-spinner fa-spin d-none" id="loginSpinner"></i>
+                    </span>
                 </button>
             </form>
+
+            <div class="login-footer">
+                <div class="footer-decoration">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <p><i class="fas fa-shield-alt"></i> Acceso seguro para administradores</p>
+            </div>
         </div>
     </div>
 
     <!-- ─── NAV ─── -->
     <nav id="adminNav" style="display: none;">
-        <div class="nav-logo">Vitamina <span>D</span> - Admin</div>
+        <div class="nav-logo">
+            <i class="fas fa-leaf" style="color: var(--admin-orange);"></i>
+            Vitamina <span>D</span> - Admin
+        </div>
         <ul class="nav-links">
             <li><a href="index.html">Ver Tienda <i class="fas fa-external-link-alt"></i></a></li>
             <li><button id="logoutBtn" class="btn-icon" style="color: #e53e3e; font-size: 1rem;"><i class="fas fa-sign-out-alt"></i> Salir</button></li>
@@ -45,15 +100,15 @@
 
     <div class="admin-container" id="mainAdminPanel" style="display: none;">
         <!-- Panel de Estadísticas -->
-        <section class="admin-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; background: #fff8f4; border: 1px solid #ffe7d9;">
-            <div style="text-align: center; padding: 10px; border-right: 1px solid #ffe7d9;">
-                <h3 style="margin: 0; color: #718096; font-size: 0.9rem; text-transform: uppercase;">Total Productos</h3>
-                <p id="statTotalProductos" style="margin: 5px 0 0; font-size: 2rem; font-weight: 700; color: #2d3748;">0</p>
+        <section class="stats-bar">
+            <div class="stat-card">
+                <h3>Total Productos</h3>
+                <p id="statTotalProductos" class="stat-number">0</p>
             </div>
-            <div style="text-align: center; padding: 10px;">
-                <h3 style="margin: 0; color: #e53e3e; font-size: 0.9rem; text-transform: uppercase;">Sin Imagen</h3>
-                <p id="statSinImagen" style="margin: 5px 0 0; font-size: 2rem; font-weight: 700; color: #e53e3e;">0</p>
-                <small id="btnVerSinImagen" style="color: #3182ce; cursor: pointer; text-decoration: underline;">Ver todos</small>
+            <div class="stat-card danger">
+                <h3>Sin Imagen</h3>
+                <p id="statSinImagen" class="stat-number">0</p>
+                <small id="btnVerSinImagen" style="cursor: pointer; text-decoration: underline;">Ver todos</small>
             </div>
         </section>
 
@@ -70,16 +125,16 @@
                     <div class="form-group">
                         <label for="precio">Precio Base ($)</label>
                         <input type="number" id="precio" required placeholder="Ej: 1500" min="0">
-                        <small style="color: #718096; display: block; margin-top: 5px;">Se usará si no hay opciones, o como referencia.</small>
+                        <small>Se usará si no hay opciones, o como referencia.</small>
                     </div>
                     <div class="form-group">
                         <label>Categorías</label>
-                        <input type="text" id="searchCategoria" placeholder="Buscar categoría..." style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; width: 100%; margin-bottom: 8px; font-size: 0.9rem;">
-                        <div id="categoriasContainer" style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: #fff;">
+                        <input type="text" id="searchCategoria" placeholder="Buscar categoría..." style="padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%; margin-bottom: 8px; font-size: 0.9rem;">
+                        <div id="categoriasContainer" style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: #fff;">
                             <!-- Llenado dinámicamente con JS -->
                             <span style="color: #a0aec0; font-size: 0.9rem;">Cargando categorías...</span>
                         </div>
-                        <small style="color: #718096; display: block; margin-top: 5px;">Podés seleccionar una o varias categorías.</small>
+                        <small>Podés seleccionar una o varias categorías.</small>
                     </div>
                 </div>
 
@@ -88,22 +143,22 @@
                     <input type="text" id="descripcion" required placeholder="Ej: 250g. Calidad premium.">
                 </div>
 
-                <div class="form-group" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; background: #f8fafc;">
+                <div class="form-group" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; background: linear-gradient(135deg, #f8fafc, #edf7ee);">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
                         <span>Opciones / Variantes (Tamaños, Sabores, etc.)</span>
-                        <button type="button" id="btnAddVariant" class="btn-principal" style="padding: 6px 12px; font-size: 0.85rem; background: #38a169;">
+                        <button type="button" id="btnAddVariant" class="btn-principal" style="padding: 8px 16px; font-size: 0.85rem; background: var(--admin-accent); box-shadow: 0 4px 12px rgba(41,109,54,0.25);">
                             <i class="fas fa-plus"></i> Agregar Opción
                         </button>
                     </label>
                     <div id="variantesList" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
                         <!-- JS injected -->
                     </div>
-                    <small style="color: #718096; display: block; margin-top: 10px;">Si agregás opciones, los clientes deberán elegir una antes de comprar (Ej: "1 kg" a $1500).</small>
+                    <small>Si agregás opciones, los clientes deberán elegir una antes de comprar (Ej: "1 kg" a $1500).</small>
                 </div>
 
                 <div class="form-group">
                     <label for="imagenUrlInput">URL de la Imagen</label>
-                    <div id="imageDropZone" style="border: 2px dashed #cbd5e0; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 10px; background: #f8fafc; transition: all 0.3s ease;">
+                    <div id="imageDropZone" style="cursor: pointer; margin-bottom: 10px;">
                         <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #a0aec0; margin-bottom: 10px;"></i>
                         <p style="margin: 0; color: #4a5568; font-weight: 500;">Arrastrá una imagen acá o hacé clic para subir</p>
                         <p style="margin: 5px 0 0; color: #718096; font-size: 0.85rem;">Se subirá automáticamente y generará el link</p>
@@ -113,10 +168,10 @@
                         <i class="fas fa-spinner fa-spin"></i> Subiendo imagen...
                     </div>
                     <input type="url" id="imagenUrlInput" required placeholder="Ej: https://i.postimg.cc/mi-imagen.jpg">
-                    <small style="color: #718096; display: block; margin-top: 5px;">Podés pegar un link directo o usar el recuadro de arriba para subir una imagen nueva.</small>
+                    <small>Podés pegar un link directo o usar el recuadro de arriba para subir una imagen nueva.</small>
                 </div>
 
-                <div style="margin-bottom: 15px; padding: 10px; background-color: #ebf8ff; border-radius: 6px; border: 1px solid #bee3f8;">
+                <div style="margin-bottom: 15px; padding: 12px 16px; background: linear-gradient(135deg, #ebf8ff, #e6fffa); border-radius: 10px; border: 1px solid #bee3f8;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #2b6cb0; margin: 0;">
                         <input type="checkbox" id="autoEditToggle"> <strong>Modo Edición Continua:</strong> Cargar automáticamente el siguiente producto al guardar.
                     </label>
@@ -128,15 +183,15 @@
                         <i class="fas fa-spinner fa-spin d-none" id="spinner"></i>
                     </button>
                     
-                    <button type="button" class="btn-principal d-none" id="prevEditBtn" style="background-color: #4a5568; flex: 1; min-width: 100px;" title="Anterior">
+                    <button type="button" class="btn-principal d-none" id="prevEditBtn" style="background-color: #4a5568; flex: 1; min-width: 100px; box-shadow: 0 4px 12px rgba(74,85,104,0.2);" title="Anterior">
                         <i class="fas fa-chevron-left"></i> Anterior
                     </button>
                     
-                    <button type="button" class="btn-principal d-none" id="nextEditBtn" style="background-color: #4a5568; flex: 1; min-width: 100px;" title="Siguiente">
+                    <button type="button" class="btn-principal d-none" id="nextEditBtn" style="background-color: #4a5568; flex: 1; min-width: 100px; box-shadow: 0 4px 12px rgba(74,85,104,0.2);" title="Siguiente">
                         Siguiente <i class="fas fa-chevron-right"></i>
                     </button>
 
-                    <button type="button" class="btn-principal d-none" id="cancelEditBtn" style="background-color: #e53e3e; flex: 1; min-width: 100px;">
+                    <button type="button" class="btn-principal d-none" id="cancelEditBtn" style="background-color: #e53e3e; flex: 1; min-width: 100px; box-shadow: 0 4px 12px rgba(229,62,62,0.2);">
                         Cancelar
                     </button>
                 </div>
@@ -163,7 +218,7 @@
                         <span id="catBtnText">Guardar Categoría</span>
                         <i class="fas fa-spinner fa-spin d-none" id="catSpinner"></i>
                     </button>
-                    <button type="button" class="btn-principal d-none" id="catCancelEditBtn" style="background-color: #718096;">
+                    <button type="button" class="btn-principal d-none" id="catCancelEditBtn" style="background-color: #718096; box-shadow: 0 4px 12px rgba(113,128,150,0.2);">
                         Cancelar
                     </button>
                 </div>
@@ -184,22 +239,22 @@
                 </table>
             </div>
             <div id="catTableLoader" class="text-center py-3">
-                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--verde-principal)"></i>
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--admin-accent)"></i>
                 <p>Cargando categorías...</p>
             </div>
         </section>
 
         <!-- Listado de Productos -->
         <section class="admin-card">
-            <h2><i class="fas fa-list"></i> Productos Cargados</h2>
+            <h2><i class="fas fa-box-open"></i> Productos Cargados</h2>
             
             <!-- Controles de Búsqueda y Paginación -->
             <div style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;">
-                <input type="text" id="adminSearch" placeholder="Buscar producto por nombre..." style="padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; width: 100%; max-width: 300px;">
+                <input type="text" id="adminSearch" placeholder="Buscar producto por nombre..." style="padding: 10px 16px; border-radius: 50px; border: 2px solid #e2e8f0; width: 100%; max-width: 300px; font-size: 0.9rem; transition: all 0.3s;">
                 <div class="admin-pagination" style="display: flex; align-items: center; gap: 10px;">
-                    <button id="adminPrevPage" class="btn-principal" style="padding: 6px 12px; background-color: #4a5568;" disabled>&lt; Anterior</button>
+                    <button id="adminPrevPage" class="btn-principal" style="padding: 8px 16px; background-color: #4a5568; border-radius: 50px; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(74,85,104,0.2);" disabled>< Anterior</button>
                     <span id="adminPageInfo" style="font-weight: 600; color: #2d3748;">Pág 1</span>
-                    <button id="adminNextPage" class="btn-principal" style="padding: 6px 12px; background-color: #4a5568;">Siguiente &gt;</button>
+                    <button id="adminNextPage" class="btn-principal" style="padding: 8px 16px; background-color: #4a5568; border-radius: 50px; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(74,85,104,0.2);">Siguiente ></button>
                 </div>
             </div>
 
@@ -220,7 +275,7 @@
                 </table>
             </div>
             <div id="tableLoader" class="text-center py-3">
-                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--verde-principal)"></i>
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--admin-accent)"></i>
                 <p>Cargando productos...</p>
             </div>
         </section>

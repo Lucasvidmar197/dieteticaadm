@@ -1,21 +1,17 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { 
+    db, 
+    auth, 
+    collection, 
+    doc, 
+    addDoc, 
+    onSnapshot, 
+    deleteDoc, 
+    updateDoc, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    signOut 
+} from "./firebase-config.js";
 import { getCatalogCollections } from "./catalog-store.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyALovDYcyU5nr5bNGalRaCPTdnejns_avg",
-    authDomain: "vitamita-d.firebaseapp.com",
-    projectId: "vitamita-d",
-    storageBucket: "vitamita-d.firebasestorage.app",
-    messagingSenderId: "1055676055964",
-    appId: "1:1055676055964:web:37ed8d6c3cfac62ccd0859"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
 
 // DOM Elements - Admin Panel
 const form = document.getElementById('productForm');
@@ -338,7 +334,7 @@ const imagenUrlInput = document.getElementById('imagenUrlInput');
 const uploadProgress = document.getElementById('uploadProgress');
 
 // Usamos ImgBB que es el estándar para keys de 32 caracteres (Postimages no tiene API pública con CORS)
-const IMAGE_API_KEY = "6472bcb6d1060650afc8ff8d5bd8d92a";
+const IMAGE_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
 const IMAGE_API_URL = "https://api.imgbb.com/1/upload";
 
 if (imageDropZone) {
@@ -847,3 +843,16 @@ window.eliminarCategoria = async (id) => {
         showToast("Error al eliminar", "error");
     }
 };
+
+// ─── TOGGLE PASSWORD VISIBILITY ───
+const togglePasswordBtn = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('adminPassword');
+if (togglePasswordBtn && passwordInput) {
+    togglePasswordBtn.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        // Toggle the eye icon
+        const icon = togglePasswordBtn.querySelector('i');
+        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+}
