@@ -3,12 +3,12 @@ import { getFirestore, collection, doc, addDoc, onSnapshot, deleteDoc, updateDoc
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID
+    apiKey: "AIzaSyALovDYcyU5nr5bNGalRaCPTdnejns_avg",
+    authDomain: "vitamita-d.firebaseapp.com",
+    projectId: "vitamita-d",
+    storageBucket: "vitamita-d.firebasestorage.app",
+    messagingSenderId: "1055676055964",
+    appId: "1:1055676055964:web:37ed8d6c3cfac62ccd0859"
 };
 
 // Initialize Firebase

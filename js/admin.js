@@ -334,7 +334,7 @@ const imagenUrlInput = document.getElementById('imagenUrlInput');
 const uploadProgress = document.getElementById('uploadProgress');
 
 // Usamos ImgBB que es el estándar para keys de 32 caracteres (Postimages no tiene API pública con CORS)
-const IMAGE_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
+const IMAGE_API_KEY = "6472bcb6d1060650afc8ff8d5bd8d92a";
 const IMAGE_API_URL = "https://api.imgbb.com/1/upload";
 
 if (imageDropZone) {
