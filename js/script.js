@@ -649,25 +649,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     const buscador = document.getElementById('buscador');
     const buscadorHeader = document.getElementById('buscador-header');
 
-    const handleSearch = (e) => {
-        searchTerm = e.target.value;
-        if (buscador && e.target !== buscador) buscador.value = searchTerm;
-        if (buscadorHeader && e.target !== buscadorHeader) buscadorHeader.value = searchTerm;
-        filtrarProductos(currentFilter, null);
-        
-        // Hacer scroll a la sección de productos si el usuario busca desde el header
-        if (e.target === buscadorHeader && searchTerm.length > 0) {
-            const promosSection = document.getElementById('promos');
-            if (promosSection) promosSection.scrollIntoView({ behavior: 'smooth' });
+    const handleSearchEnter = (e) => {
+        if (e.key === 'Enter') {
+            searchTerm = e.target.value;
+            if (buscador && e.target !== buscador) buscador.value = searchTerm;
+            if (buscadorHeader && e.target !== buscadorHeader) buscadorHeader.value = searchTerm;
+            filtrarProductos(currentFilter, null);
+            
+            // Hacer scroll a la sección de productos si el usuario busca desde el header
+            if (e.target === buscadorHeader && searchTerm.length > 0) {
+                const promosSection = document.getElementById('promos');
+                if (promosSection) promosSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     };
 
     if(buscador) {
-        buscador.addEventListener('input', handleSearch);
+        buscador.addEventListener('keyup', handleSearchEnter);
     }
     
     if(buscadorHeader) {
-        buscadorHeader.addEventListener('input', handleSearch);
+        buscadorHeader.addEventListener('keyup', handleSearchEnter);
     }
     
     // Boton Cargar Más (Eliminado o Reemplazado por listeners de paginación)
