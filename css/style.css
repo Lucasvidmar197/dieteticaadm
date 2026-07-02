@@ -335,6 +335,19 @@
     background: var(--naranja-acento);
             font-weight: 600;
         }
+        .sidebar-cat-link-toggle {
+            display: block;
+            padding: 8px 12px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--naranja-acento);
+            font-size: 0.9rem;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .sidebar-cat-link-toggle:hover { background: #fff8f4; }
         .precio-inputs {
             display: flex;
             align-items: flex-end;
