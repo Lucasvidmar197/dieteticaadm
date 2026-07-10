@@ -39,6 +39,26 @@ function centrarSeccionProductos() {
     window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
 }
 
+function ejecutarBusqueda(termino) {
+    searchTerm = termino.trim();
+    
+    // Sincronizar los campos de búsqueda
+    const buscador = document.getElementById('buscador');
+    const buscadorHeader = document.getElementById('buscador-header');
+    if (buscador) buscador.value = searchTerm;
+    if (buscadorHeader) buscadorHeader.value = searchTerm;
+
+    categoriasExpanded = false;
+    filtrarProductos('todos');
+    
+    // Hacer scroll a la sección de productos si hay un término de búsqueda
+    if (searchTerm.length > 0) {
+        setTimeout(() => {
+            centrarSeccionProductos();
+        }, 100); 
+    }
+}
+
 // ─── RENDER PRODUCTOS ───
 function renderProductos(lista) {
     const grid = document.getElementById('productos-grid');
@@ -196,7 +216,6 @@ function generarFiltros(categoriasAMostrar = categoriasDB) {
         verMenosLi.innerHTML = `<a href="javascript:void(0)" class="sidebar-cat-link-toggle">Ver menos</a>`;
         sidebarCatList.appendChild(verMenosLi);
     } else {
-        currentFilter = cat || currentFilter;
         document.querySelectorAll('.sidebar-cat-link').forEach(b => {
             if (b.dataset.filter === currentFilter) b.classList.add('activo');
             else b.classList.remove('activo');
@@ -573,9 +592,10 @@ function initZoom(imgID, resultID, lensID) {
     const img = document.getElementById(imgID);
     const result = document.getElementById(resultID);
     const lens = document.getElementById(lensID);
-    const container = img.parentElement;
 
     if (!img || !result || !lens) return;
+
+    const container = img.parentElement;
 
     // Reset styles
     result.style.backgroundImage = `url('${img.src}')`;
@@ -699,35 +719,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Error de conexión con el catálogo.</p>';
     }
 
-    // Buscador
-    const buscador = document.getElementById('buscador');
+    // ─── LÓGICA DE BÚSQUEDA ───
     const buscadorHeader = document.getElementById('buscador-header');
+    const searchButton = buscadorHeader.parentElement.querySelector('button');
+    const buscadorBody = document.getElementById('buscador');
 
-    const handleSearchEnter = (e) => {
-        if (e.key === 'Enter') {
-            searchTerm = e.target.value;
-            if (buscador && e.target !== buscador) buscador.value = searchTerm;
-            if (buscadorHeader && e.target !== buscadorHeader) buscadorHeader.value = searchTerm;
-            
-            categoriasExpanded = false;
-            filtrarProductos('todos');
-            
-            // Hacer scroll centrado a la sección de productos si el usuario busca desde el header
-            if (e.target === buscadorHeader && searchTerm.length > 0) {
-                centrarSeccionProductos();
+    if (buscadorHeader) {
+        buscadorHeader.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                ejecutarBusqueda(e.target.value);
             }
-        }
-    };
+        });
+    }
 
-    if(buscador) {
-        buscador.addEventListener('keyup', handleSearchEnter);
+    if (searchButton) {
+        searchButton.addEventListener('click', () => {
+            ejecutarBusqueda(buscadorHeader.value);
+        });
     }
-    
-    if(buscadorHeader) {
-        buscadorHeader.addEventListener('keyup', handleSearchEnter);
+
+    if (buscadorBody) {
+        buscadorBody.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                ejecutarBusqueda(e.target.value);
+            }
+        });
     }
-    
-    // Boton Cargar Más (Eliminado o Reemplazado por listeners de paginación)
+
     const prevPageBtn = document.getElementById('prev-page');
     const nextPageBtn = document.getElementById('next-page');
 

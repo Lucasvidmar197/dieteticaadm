@@ -8,6 +8,7 @@
             --blanco: #ffffff;
             --gris-suave: #f8f8f8;
             --sombra: rgba(0,0,0,0.08);
+            --bordo-oscuro: #4a0112;
         }
 
         /* ─── SCROLLBAR PERSONALIZADA ─── */
@@ -52,8 +53,11 @@
         /* ─── HEADER ─── */
         .main-header {
             width: 100%;
-            background-color: #fc8403;
-            color: white;
+            background-image: url('https://i.postimg.cc/FH2QDwX3/Adobe-Express-file.png');
+            background-size: cover;
+            background-position: center;
+            color: var(--blanco);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
             font-family: 'Poppins', sans-serif;
             position: fixed;
             top: 0;
@@ -62,11 +66,20 @@
             z-index: 500;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
         
         .main-header .header-top-bar,
         .main-header .header-middle-bar,
         .main-header .header-bottom-bar {
             flex-shrink: 0;
+            position: relative;
+            z-index: 1;
         }
         
         /* Espacio para compensar el header fixed */
@@ -82,11 +95,11 @@
             }
         }
         
-        .main-header a { text-decoration: none; color: white; }
+        .main-header a { text-decoration: none; color: var(--blanco); }
 
         /* Top Bar */
         .header-top-bar {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(0,0,0,0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -94,7 +107,7 @@
             font-size: 0.85rem;
         }
         .header-top-bar .social-icon { font-size: 1.1rem; }
-        .header-top-bar .promo-text { text-align: center; flex: 1; margin: 0 20px; font-weight: 500; }
+        .header-top-bar .promo-text { text-align: center; flex: 1; margin: 0 20px; font-weight: 600; }
         .header-top-bar .spacer { width: 20px; }
 
         /* Middle Bar */
@@ -110,16 +123,6 @@
             max-width: 1400px;
             margin: 0 auto;
             gap: 40px;
-        }
-
-        .header-logo {
-            display: flex;
-            align-items: center;
-        }
-        .header-logo img {
-            height: 60px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         /* Search Bar */
@@ -140,6 +143,10 @@
             font-family: 'Poppins', sans-serif;
             outline: none;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .header-search-container input::placeholder {
+            color: #ddd;
+            opacity: 1;
         }
         .header-search-container button {
             position: absolute;
@@ -164,17 +171,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            color: white;
+            gap: 4px;
+            color: var(--blanco);
             cursor: pointer;
             transition: transform 0.2s;
             background: transparent;
             border: none;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
         .action-item:hover { transform: translateY(-2px); }
-        .action-item i { font-size: 1.5rem; font-weight: 300; }
+        .action-item i { font-size: 1.4rem; }
         
         .cart-icon-wrapper {
             position: relative;
@@ -184,9 +192,9 @@
         .carrito-badge {
             position: absolute;
             top: -8px;
-            right: -10px;
-            background: rgba(255,255,255,0.3);
-            color: white;
+            right: -12px;
+            background: var(--naranja-acento);
+            color: var(--blanco);
             border-radius: 50%;
             width: 18px;
             height: 18px;
@@ -199,7 +207,7 @@
 
         /* Bottom Bar */
         .header-bottom-bar {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: transparent;
             padding: 10px 40px;
             display: flex;
             justify-content: center;
