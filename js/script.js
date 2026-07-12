@@ -14,7 +14,7 @@ let productosMostrados = 0;
 let currentPDPId = null;
 let currentPDPVariantId = null; // Para saber qué variante está seleccionada
 let currentPage = 1;
-const PRODUCTOS_POR_PAGINA = 6;
+const PRODUCTOS_POR_PAGINA = 10;
 
 // ─── UTILIDADES ───
 function normalizarTexto(texto) {
@@ -193,17 +193,35 @@ function generarFiltros(categoriasAMostrar = categoriasDB) {
     const sidebarCatList = document.getElementById('sidebar-categorias');
     if (!sidebarCatList) return;
 
-    // Sort categories alphabetically
-    categoriasAMostrar.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    // Sort categories alphabetically, but put Keto and Proteicos first
+    categoriasAMostrar.sort((a, b) => {
+        const priority = { "Keto": 1, "Proteicos": 2 };
+        const pA = priority[a.nombre] || 99;
+        const pB = priority[b.nombre] || 99;
+        if (pA !== pB) return pA - pB;
+        return a.nombre.localeCompare(b.nombre);
+    });
 
-    let html = `<li><a href="javascript:void(0)" class="sidebar-cat-link" data-filter="todos">Todas</a></li>`;
+    let htmlItems = [];
+    let todasIndex = 0; // Default to first
 
     const shouldCollapse = categoriasAMostrar.length > 10 && !categoriasExpanded;
     const listToRender = shouldCollapse ? categoriasAMostrar.slice(0, 10) : categoriasAMostrar;
 
     listToRender.forEach(cat => {
-        html += `<li><a href="javascript:void(0)" class="sidebar-cat-link" data-filter="${cat.nombre}">${cat.nombre}</a></li>`;
+        let nameHtml = cat.nombre;
+        if (cat.nombre.toLowerCase() === 'keto') {
+            nameHtml = '<b>KETO</b>';
+            todasIndex = Math.max(todasIndex, htmlItems.length + 1);
+        } else if (cat.nombre.toLowerCase() === 'proteicos') {
+            nameHtml = '<b>PROTEICOS</b>';
+            todasIndex = Math.max(todasIndex, htmlItems.length + 1);
+        }
+        htmlItems.push(`<li><a href="javascript:void(0)" class="sidebar-cat-link" data-filter="${cat.nombre}">${nameHtml}</a></li>`);
     });
+
+    htmlItems.splice(todasIndex, 0, `<li><a href="javascript:void(0)" class="sidebar-cat-link" data-filter="todos">Todas</a></li>`);
+    let html = htmlItems.join('');
 
     sidebarCatList.innerHTML = html;
 
@@ -217,7 +235,7 @@ function generarFiltros(categoriasAMostrar = categoriasDB) {
         sidebarCatList.appendChild(verMenosLi);
     } else {
         document.querySelectorAll('.sidebar-cat-link').forEach(b => {
-            if (b.dataset.filter === currentFilter) b.classList.add('activo');
+            if (normalizarTexto(b.dataset.filter) === normalizarTexto(currentFilter)) b.classList.add('activo');
             else b.classList.remove('activo');
         });
     }
@@ -290,9 +308,10 @@ function filtrarProductos(cat) {
     // 4. Apply category filter
     productosFiltrados = productosPotenciales;
     if (currentFilter !== 'todos') {
+        const normalizedFilter = normalizarTexto(currentFilter);
         productosFiltrados = productosFiltrados.filter(p => {
             const cats = p.categorias || (p.categoria ? [p.categoria] : []);
-            return cats.includes(currentFilter);
+            return cats.some(c => normalizarTexto(c) === normalizedFilter);
         });
     }
 
@@ -300,9 +319,12 @@ function filtrarProductos(cat) {
     renderProductos(productosFiltrados);
     
     // 6. Update active button in sidebar
-    document.querySelectorAll('.sidebar-cat-link').forEach(b => b.classList.remove('activo'));
-    const activeBtn = document.querySelector(`.sidebar-cat-link[data-filter="${currentFilter}"]`);
-    if (activeBtn) activeBtn.classList.add('activo');
+    document.querySelectorAll('.sidebar-cat-link').forEach(b => {
+        b.classList.remove('activo');
+        if (normalizarTexto(b.dataset.filter) === normalizarTexto(currentFilter)) {
+            b.classList.add('activo');
+        }
+    });
 }
 
 function filtrarCategoria(cat) {
@@ -417,12 +439,12 @@ function renderCarrito() {
     const total = items.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
 
     // Lógica del mensaje de envío
-    const freeShippingThreshold = 20000;
+    const freeShippingThreshold = 40000;
     if (shippingInfoContainer) {
         if (items.length > 0) {
             shippingInfoContainer.style.display = 'block';
             if (total >= freeShippingThreshold) {
-                shippingInfoContainer.innerHTML = `🎉 ¡Tenés <strong>envío gratis</strong> a alrededores de Quilmes!`;
+                shippingInfoContainer.innerHTML = `🎉 ¡Tenés <strong>envíos a todo el país</strong>!`;
                 shippingInfoContainer.classList.add('gratis');
             } else {
                 const faltante = freeShippingThreshold - total;
@@ -637,7 +659,7 @@ function initZoom(imgID, resultID, lensID) {
 function initFAQ() {
     const faqOverlay = document.getElementById('faqOverlay');
     const faqModal = document.getElementById('faqModal');
-    const faqClose = document.querySelector('.faq-modal-close');
+    const faqClose = document.querySelector('#faqModal .faq-modal-close');
     const faqNavBtn = document.getElementById('btn-faq-nav');
     const faqFooterBtn = document.getElementById('btn-faq-footer');
 
@@ -676,13 +698,40 @@ function initFAQ() {
     });
 }
 
+function initMapaEnvios() {
+    const mapaOverlay = document.getElementById('mapaEnviosOverlay');
+    const mapaModal = document.getElementById('mapaEnviosModal');
+    const mapaClose = document.getElementById('mapaEnviosClose');
+    const btnMapaEnvios = document.getElementById('btn-mapa-envios');
+
+    if (!mapaOverlay || !mapaModal || !btnMapaEnvios) return;
+
+    const toggleMapa = () => {
+        const isActive = mapaModal.classList.contains('active');
+        if (isActive) {
+            mapaModal.classList.remove('active');
+            mapaOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        } else {
+            mapaModal.classList.add('active');
+            mapaOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    btnMapaEnvios.addEventListener('click', toggleMapa);
+    if (mapaClose) mapaClose.addEventListener('click', toggleMapa);
+    mapaOverlay.addEventListener('click', toggleMapa);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     
     const grid = document.getElementById('productos-grid');
     grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Cargando productos...</p></div>';
 
-    // Inicializar FAQ
+    // Inicializar FAQ y Mapas
     initFAQ();
+    initMapaEnvios();
 
     try {
         const { productsCollection, categoriesCollection } = await getCatalogCollections();
@@ -791,6 +840,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             if(e.key === 'Enter') filtrarProductos(currentFilter);
         });
     }
+
+    // Delegated listener for header categories
+    document.querySelectorAll('.header-cat-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const cat = e.target.dataset.category;
+            filtrarCategoria(cat);
+        });
+    });
 
     // Delegated listener for sidebar categories
     const sidebarCatList = document.getElementById('sidebar-categorias');

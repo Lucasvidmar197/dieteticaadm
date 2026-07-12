@@ -15,11 +15,6 @@
         <!-- Middle Bar -->
         <div class="header-middle-bar">
             <div class="header-container">
-                <div class="header-search-container">
-                    <input type="text" id="buscador-header" placeholder="¿Qué estás buscando?">
-                    <button type="button"><i class="fas fa-search"></i></button>
-                </div>
-
                 <div class="header-actions">
                     <a href="javascript:void(0)" id="btn-faq-nav" class="action-item">
                         <i class="far fa-comments"></i>
@@ -36,29 +31,38 @@
             </div>
         </div>
 
-        <!-- Bottom Bar -->
-         <div class="header-bottom-bar">
-             <ul class="bottom-nav-links">
-                 <li><a href="#">Inicio</a></li>
-                 <li class="dropdown-container">
-                     <a href="#promos" id="btn-productos-dropdown">Productos <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 5px;"></i></a>
-                     <div class="dropdown-menu" id="categorias-dropdown">
-                         <!-- Llenado dinámicamente con JS -->
-                     </div>
-                 </li>
-             </ul>
-         </div>
+        <div class="header-search-wrapper">
+            <div class="header-search-container">
+                <input type="text" id="buscador-header" placeholder="¿Qué estás buscando?">
+                <button type="button"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
 
         <!-- Top Bar -->
         <div class="header-top-bar">
             <a href="https://www.instagram.com/dietetica.vitaminad/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <p class="promo-text">Hacemos envíos gratis en compras superiores a $20.000. Si tu pedido es antes de las 12:00 hs, Lo recibís en el dia!</p>
+            <div style="flex: 1;"></div>
             <div class="spacer"></div>
          </div>
     </header>
 
     <!-- Espacio para compensar el header fixed -->
     <div class="header-spacer"></div>
+
+    <div class="sub-header-content">
+        <p class="promo-text">Hacemos envíos gratis en compras superiores a $40.000. Si tu pedido es antes de las 12:00 hs, Lo recibís en el dia!</p>
+        <div class="header-bottom-bar">
+            <ul class="bottom-nav-links">
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#promos" class="header-cat-link" data-category="Keto">Keto</a></li>
+                <li><a href="#promos" class="header-cat-link" data-category="Proteicos">Proteicos</a></li>
+                <li><a href="#promos">Promos</a></li>
+                <li><a href="#promos" class="header-cat-link" data-category="Herboristeria">Herboristería</a></li>
+                <li><a href="#promos" class="header-cat-link" data-category="todos">Todos los productos</a></li>
+                <li><a href="#promos" class="header-cat-link" data-category="Nuevos ingresos">Nuevos ingresos</a></li>
+            </ul>
+        </div>
+    </div>
 
     <!-- ─── ABOUT ─── -->
     <section class="about-section">
@@ -116,6 +120,18 @@
         </div>
     </section>
 
+    <!-- ─── MAPA ENVIOS MODAL ─── -->
+    <div class="faq-overlay" id="mapaEnviosOverlay"></div>
+    <div class="faq-modal" id="mapaEnviosModal" style="max-width: 1000px; width: 95%; height: 85vh;">
+        <div class="faq-modal-header">
+            <h3>🗺️ Áreas de entrega sin costo</h3>
+            <button class="faq-modal-close" id="mapaEnviosClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="faq-modal-content" style="padding: 0; flex: 1; height: 100%;">
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1pMK0F7tCKk8hKCzK8iNSnAX4WuQ72aQ&ehbc=2E312F&noprof=1" width="100%" height="100%" style="border:0; display:block;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+
     <!-- ─── FAQ MODAL (PREGUNTAS FRECUENTES) ─── -->
     <div class="faq-overlay" id="faqOverlay"></div>
     <div class="faq-modal" id="faqModal">
@@ -147,10 +163,8 @@
                         <div class="faq-answer">
                             <p>Nuestros horarios varían según el día para que siempre encuentres un momento para venir:</p>
                             <ul style="list-style: none; margin-top: 10px;">
-                                <li><strong>Lunes:</strong> 09:00 a 00:00 hs.</li>
-                                <li><strong>Martes:</strong> 00:00 a 08:00 hs y 09:00 a 20:00 hs.</li>
-                                <li><strong>Miércoles a Viernes:</strong> 09:00 a 20:00 hs.</li>
-                                <li><strong>Sábado:</strong> 10:00 a 20:00 hs.</li>
+                                <li><strong>Lunes a Viernes:</strong> 09:00 a 19:30 hs.</li>
+                                <li><strong>Sábado:</strong> 10:00 a 19:30 hs.</li>
                                 <li><strong>Domingo:</strong> Cerrado.</li>
                             </ul>
                         </div>
@@ -226,6 +240,32 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Categoría: Dietas Específicas -->
+                <div class="faq-group">
+                    <h3 class="faq-group-title">🥑 Dietas Específicas</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Cuentan con productos keto?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, contamos con una gran variedad de productos keto.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Tienen productos proteicos?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, tenemos una amplia gama de productos proteicos.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -237,6 +277,9 @@
         <div class="map-container">
             <iframe src="https://maps.google.com/maps?q=Nicol%C3%A1s%20Videla%20147,%20Quilmes,%20Provincia%20de%20Buenos%20Aires&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
+        
+        <h2 style="margin-top: 40px;">Áreas de entrega sin costo</h2>
+        <button class="btn-principal" style="margin-top: 15px;" id="btn-mapa-envios"><i class="fas fa-motorcycle" style="margin-right: 8px;"></i>Ver áreas de entrega sin costo</button>
     </section>
 
     <!-- ─── MÉTODOS DE PAGO ─── -->
@@ -291,12 +334,12 @@
 
             <!-- Cuotas -->
             <div class="pago-card">
-                <svg class="pago-logo-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+                <svg class="pago-logo-svg" viewBox="0 0 80 50" style="width: 50px; height: auto;" xmlns="http://www.w3.org/2000/svg">
                     <rect width="80" height="50" rx="8" fill="#296d36"/>
                     <text x="40" y="20" font-family="Arial" font-weight="900" font-size="13" fill="white" text-anchor="middle">HASTA</text>
                     <text x="40" y="36" font-family="Arial" font-weight="900" font-size="16" fill="#e8c61a" text-anchor="middle">12 CUOTAS</text>
                 </svg>
-                <div class="pago-nombre">Cuotas sin interés</div>
+                <div class="pago-nombre">Cuotas</div>
                 <div class="pago-detalle">Hasta 12 cuotas<br>con tarjetas seleccionadas</div>
             </div>
 
@@ -312,24 +355,7 @@
         </div>
     </section>
 
-    <!-- ─── MARCAS ─── -->
-    <section class="marcas-section">
-        <h2>Marcas con las que trabajamos</h2>
-        <div class="slider">
-            <div class="slide-track">
-                <div class="slide"><div class="slide-caja">Granja del Sol</div></div>
-                <div class="slide"><div class="slide-caja">Arcor Natura</div></div>
-                <div class="slide"><div class="slide-caja">Quaker</div></div>
-                <div class="slide"><div class="slide-caja">Knorr</div></div>
-                <div class="slide"><div class="slide-caja">La Asunción</div></div>
-                <div class="slide"><div class="slide-caja">Granja del Sol</div></div>
-                <div class="slide"><div class="slide-caja">Arcor Natura</div></div>
-                <div class="slide"><div class="slide-caja">Quaker</div></div>
-                <div class="slide"><div class="slide-caja">Knorr</div></div>
-                <div class="slide"><div class="slide-caja">La Asunción</div></div>
-            </div>
-        </div>
-    </section>
+
 
     <!-- ─── WHATSAPP ─── -->
     <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20tengo%20una%20consulta." class="whatsapp-flotante" target="_blank" title="Envianos un mensaje">
@@ -340,36 +366,36 @@
     <footer>
         <div class="footer-grid">
             <div class="footer-col">
-                <div class="footer-brand">Vitamina <span>D</span> Dietética</div>
+                <div class="footer-brand">Vitamina <span>D</span> Dietética <img src="https://i.postimg.cc/FH2QDwX3/Adobe-Express-file.png" alt="Logo" style="height: 30px; vertical-align: middle; margin-left: 10px;"></div>
                 <p>Tu tienda de productos naturales y saludables en Quilmes, Buenos Aires.</p>
                 <div class="footer-social">
                     <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
                     <a href="https://wa.me/5491144468486" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="mailto:vitamitaD@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+                    <a href="mailto:Vitaminadquilmes@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
                 </div>
             </div>
             <div class="footer-col">
                 <h4>Navegación</h4>
-                <a href="#categorias">Categorías</a>
+                <a href="#promos">Productos</a>
                 <a href="#promos">Promos</a>
                 <a href="#mapa">Cómo llegar</a>
                 <a href="javascript:void(0)" id="btn-faq-footer">Preguntas Frecuentes</a>
             </div>
             <div class="footer-col">
                 <h4>Contacto</h4>
-                <a href="mailto:vitamitaD@gmail.com"><i class="fas fa-envelope" style="margin-right:6px;"></i> vitamitaD@gmail.com</a>
+                <a href="mailto:Vitaminadquilmes@gmail.com"><i class="fas fa-envelope" style="margin-right:6px;"></i> Vitaminadquilmes@gmail.com</a>
                 <a href="https://wa.me/5491144468486" target="_blank"><i class="fab fa-whatsapp" style="margin-right:6px;"></i> +54 9 11 4446-8486</a>
                 <p><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i> Nicolás Videla 147, Quilmes</p>
             </div>
             <div class="footer-col">
                 <h4>Horarios</h4>
-                <p>Lunes a Viernes: 9:00 – 19:00</p>
-                <p>Sábados: 9:00 – 14:00</p>
+                <p>Lunes a Viernes: 9:00 – 19:30</p>
+                <p>Sábados: 10:00 – 19:30</p>
                 <p>Domingos: Cerrado</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2025 <strong>Vitamina D Dietética</strong> — Todos los derechos reservados.</p>
+            <p>© 2026 <strong>Vitamina D Dietética</strong> — Todos los derechos reservados.</p>
             <p style="margin-top:4px;">Diseño y desarrollo por <strong>Vidmar &amp; Guerrero</strong></p>
         </div>
     </footer>
