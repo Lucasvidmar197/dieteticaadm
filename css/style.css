@@ -822,15 +822,28 @@
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 768px) {
+            .main-header { 
+                height: 145px;
+                /* Adjust background for mobile: make logo larger (85%) and adaptive, position it higher */
+                background-size: 85% auto, 100% 100%;
+                background-position: center 30%, center center;
+                /* If the split looks bad on mobile, we can make it solid, but keeping it if they like it on PC */
+                background-image: 
+                    url('https://i.postimg.cc/FH2QDwX3/Adobe-Express-file.png'),
+                    linear-gradient(to right, #daedfa 0%, #bbe0f7 100%); /* Solid gradient instead of 50/50 split for mobile */
+            }
+            .header-spacer {
+                height: 145px; /* altura del header en mobile (top bar oculto) */
+            }
             .header-top-bar { display: none; }
-            .header-middle-bar { padding: 27px 15px; padding-bottom: 0; }
-            .header-middle-bar .header-container { gap: 10px; justify-content: flex-end; align-items: center; }
+            .header-middle-bar { padding: 15px; padding-bottom: 0; }
+            .header-middle-bar .header-container { gap: 10px; justify-content: flex-end; align-items: flex-start; }
             
             /* Logo más compacto en móvil */
             .header-logo div { font-size: 1.3rem !important; }
             .header-logo span { font-size: 0.8rem !important; }
             
-            .header-actions { gap: 15px; }
+            .header-actions { gap: 15px; margin-top: 5px; }
             .header-actions span { display: none; } /* Ocultar texto en iconos para ahorrar espacio */
             
             .header-search-wrapper {

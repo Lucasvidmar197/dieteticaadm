@@ -275,8 +275,8 @@ function filtrarProductos(cat) {
     currentPage = 1;
     currentFilter = cat;
 
-    // 1. Filter products by search and price
-    let productosPotenciales = productos;
+    // 1. Filter products by search, price, and active status
+    let productosPotenciales = productos.filter(p => p.activo !== false);
     if (searchTerm) {
         const normalizedSearch = normalizarTexto(searchTerm);
         productosPotenciales = productosPotenciales.filter(p => normalizarTexto(p.nombre || '').includes(normalizedSearch));
