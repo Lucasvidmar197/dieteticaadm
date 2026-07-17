@@ -101,8 +101,14 @@
             padding: 8px 40px;
             font-size: 0.85rem;
         }
-        .header-top-bar .social-icon { font-size: 1.1rem; }
-        .header-top-bar .promo-text { text-align: center; flex: 1; margin: 0 20px; font-weight: 600; }
+        .header-top-bar .social-icon { 
+            font-size: 1.6rem; 
+            color: #E1306C;
+            transition: transform 0.2s;
+        }
+        .header-top-bar .social-icon:hover {
+            transform: scale(1.15);
+        }
         .header-top-bar .spacer { width: 20px; }
 
         /* Middle Bar */
@@ -835,7 +841,14 @@
             .header-spacer {
                 height: 145px; /* altura del header en mobile (top bar oculto) */
             }
-            .header-top-bar { display: none; }
+            .header-top-bar { 
+                display: flex; 
+                justify-content: flex-start;
+                padding: 4px 0 0 25px; 
+            }
+            .header-top-bar .social-icon {
+                font-size: 1.4rem;
+            }
             .header-middle-bar { padding: 15px; padding-bottom: 0; }
             .header-middle-bar .header-container { gap: 10px; justify-content: flex-end; align-items: flex-start; }
             
@@ -900,14 +913,33 @@
             
             /* Shop Layout para móvil */
             .shop-layout { flex-direction: column; gap: 20px; }
-            .shop-sidebar { width: 100%; margin-bottom: 10px; }
+            .shop-main { order: 1; }
+            .shop-sidebar {
+                order: 2;
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 12px 15px;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px var(--sombra);
+            }
+            .sidebar-title {
+                font-size: 0.95rem;
+                margin-bottom: 10px;
+            }
+            .sidebar-block {
+                margin-bottom: 12px;
+            }
+            .sidebar-block h4 {
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+            }
             
             /* Filtros laterales a formato horizontal scrolleable */
             .sidebar-categorias-list {
                 display: flex;
                 overflow-x: auto;
-                gap: 10px;
-                padding-bottom: 10px;
+                gap: 6px;
+                padding-bottom: 6px;
                 scrollbar-width: none;
                 -ms-overflow-style: none;
             }
@@ -916,9 +948,9 @@
             .sidebar-cat-link {
                 background: white;
                 border: 1px solid #ddd;
-                padding: 6px 16px;
-                border-radius: 20px;
-                font-size: 0.85rem;
+                padding: 4px 10px;
+                border-radius: 15px;
+                font-size: 0.75rem;
             }
             .sidebar-cat-link.activo {
                 background: #fff8f4;
@@ -926,7 +958,10 @@
                 color: #fc8403;
             }
             
-            .precio-inputs { flex-wrap: wrap; }
+            .precio-inputs { flex-wrap: nowrap; gap: 6px; }
+            .precio-inputs label { font-size: 0.7rem; }
+            .precio-inputs input { padding: 5px 8px; font-size: 0.75rem; }
+            .btn-precio { width: 28px; height: 28px; font-size: 0.75rem; }
             
             /* Grilla de productos: 2 columnas en móvil */
             .productos-grid {

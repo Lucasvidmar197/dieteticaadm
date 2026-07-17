@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Generador de Descripciones - Vitamina D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        body { background-color: #f4f7f6; }
+        .admin-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .admin-header h1 { color: #673ab7; font-family: 'Playfair Display', serif; display: flex; align-items: center; gap: 10px; }
+        .back-btn { background: white; border: 1px solid #ddd; padding: 10px 20px; border-radius: 8px; text-decoration: none; color: #555; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: all 0.2s; cursor: pointer; }
+        .back-btn:hover { background: #eee; }
+        
+        .setup-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 15px var(--sombra); border: 2px solid #ddd; margin-bottom: 30px; }
+        .setup-card h3 { color: #673ab7; margin-bottom: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .input-group label { font-weight: 600; font-size: 0.9rem; color: #333; }
+        .input-group input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: 'Poppins', sans-serif; }
+        
+        .btn-primary { background: #673ab7; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; font-size: 1rem; }
+        .btn-primary:hover { background: #512da8; transform: translateY(-2px); }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        
+        .preview-section { display: none; background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 15px var(--sombra); border-top: 5px solid #673ab7; }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { background: #f9f9f9; color: #555; font-weight: 600; font-size: 0.9rem; }
+        td { font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: #333; }
+        
+        textarea.desc-input { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Poppins', sans-serif; resize: vertical; }
+        
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+        .status-waiting { background: #fff3e0; color: #e65100; }
+        .status-generating { background: #e3f2fd; color: #1565c0; }
+        .status-done { background: #e8f5e9; color: #2e7d32; }
+        .status-error { background: #ffebee; color: #c62828; }
+        
+        .actions-footer { display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #eee; padding-top: 20px; }
+        
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
+        .loading-overlay i { font-size: 4rem; color: #673ab7; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-robot"></i> Asistente de IA (Gemini)</h1>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver a la Tienda</a>
+        </div>
+
+        <div class="setup-card" id="setupCard">
+            <h3>1. Configuración de API</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Ingresá tu clave de Google Gemini. Se guardará localmente en tu navegador para que no tengas que pegarla cada vez.</p>
+            <div class="input-group">
+                <label for="apiKeyInput">API Key (Gemini):</label>
+                <input type="password" id="apiKeyInput" placeholder="Ej: AIzaSyB...">
+            </div>
+            <button class="btn-primary" id="btnScan"><i class="fas fa-search"></i> Buscar Productos Sin Descripción e Imagen</button>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-header">
+                <h2>Productos Encontrados (<span id="countProducts">0</span>)</h2>
+                <button class="btn-primary" id="btnGenerateAll"><i class="fas fa-magic"></i> Generar Descripciones Mágicamente</button>
+            </div>
+            <p style="font-size: 0.9rem; margin-bottom: 15px; color: #555;">Revisá y editá las descripciones a medida que la Inteligencia Artificial las va escribiendo.</p>
+            
+            <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Producto</th>
+                            <th style="width: 10%">Estado</th>
+                            <th style="width: 65%">Descripción Generada (Editable)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsBody">
+                        <!-- Las filas se insertarán acá -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="actions-footer">
+                <button class="back-btn" id="btnCancel" style="border: none; background: #eee;">Cancelar</button>
+                <button class="btn-primary" id="btnSaveAll" style="background: var(--verde-principal);" disabled><i class="fas fa-save"></i> Guardar en Base de Datos</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h2 id="loadingText">Procesando...</h2>
+    </div>
+
+    <script type="module" src="js/ai-descriptions.js"></script>
+</body>
+</html>

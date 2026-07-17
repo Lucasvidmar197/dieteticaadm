@@ -714,6 +714,17 @@ function cargarCategorias(categoriesCollection) {
         
         catContainer.innerHTML = '';
 
+        const transOrigenSelect = document.getElementById('transOrigen');
+        const transDestinoSelect = document.getElementById('transDestino');
+        let valOrigen = "";
+        let valDestino = "";
+        if (transOrigenSelect && transDestinoSelect) {
+            valOrigen = transOrigenSelect.value;
+            valDestino = transDestinoSelect.value;
+            transOrigenSelect.innerHTML = '<option value="">Selecciona origen...</option>';
+            transDestinoSelect.innerHTML = '<option value="">Selecciona destino...</option>';
+        }
+        
         if (snapshot.empty) {
             catContainer.innerHTML = '<span style="color: #e53e3e; font-size: 0.9rem;">No hay categorías creadas.</span>';
             catTableBody.innerHTML = `<tr><td colspan="3" class="text-center">No hay categorías cargadas.</td></tr>`;
@@ -724,6 +735,13 @@ function cargarCategorias(categoriesCollection) {
             const cat = docSnap.data();
             const id = docSnap.id;
             localCategorias[id] = cat;
+
+            // Llenar selects de transferencia
+            if (transOrigenSelect && transDestinoSelect) {
+                const optHtml = `<option value="${cat.nombre}">${cat.icono} ${cat.nombre}</option>`;
+                transOrigenSelect.insertAdjacentHTML('beforeend', optHtml);
+                transDestinoSelect.insertAdjacentHTML('beforeend', optHtml);
+            }
 
             // Llenar checkboxes de productos
             const isChecked = checkedBoxes.includes(cat.nombre) ? 'checked' : '';
@@ -761,6 +779,11 @@ function cargarCategorias(categoriesCollection) {
             `;
             catTableBody.appendChild(tr);
         });
+
+        if (transOrigenSelect && transDestinoSelect) {
+            transOrigenSelect.value = valOrigen;
+            transDestinoSelect.value = valDestino;
+        }
     }, (error) => {
         console.error("Error al obtener categorías: ", error);
         showToast("Error al cargar categorías", "error");
@@ -854,5 +877,87 @@ if (togglePasswordBtn && passwordInput) {
         // Toggle the eye icon
         const icon = togglePasswordBtn.querySelector('i');
         icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+}
+
+// ─── TRANSFERIR PRODUCTOS ENTRE CATEGORÍAS ───
+const transferirForm = document.getElementById('transferirCategoriaForm');
+if (transferirForm) {
+    transferirForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const origen = document.getElementById('transOrigen').value;
+        const destino = document.getElementById('transDestino').value;
+
+        if (!origen || !destino) {
+            showToast("Por favor selecciona ambas categorías", "error");
+            return;
+        }
+        if (origen === destino) {
+            showToast("Las categorías origen y destino deben ser diferentes", "error");
+            return;
+        }
+
+        if (!confirm(`¿Estás seguro de que deseas mover todos los productos de "${origen}" a "${destino}"?`)) {
+            return;
+        }
+
+        const btn = document.getElementById('transferirBtn');
+        const spinner = document.getElementById('transferirSpinner');
+        btn.disabled = true;
+        spinner.classList.remove('d-none');
+
+        try {
+            // Filtrar localmente los productos que tienen la categoría origen
+            const idsAModificar = Object.keys(localProductos).filter(id => {
+                const prod = localProductos[id];
+                const cats = prod.categorias || [];
+                const catPrincipal = prod.categoria || "";
+                return cats.includes(origen) || catPrincipal === origen;
+            });
+
+            if (idsAModificar.length === 0) {
+                showToast("No se encontraron productos en la categoría origen", "warning");
+                return;
+            }
+
+            let editados = 0;
+            for (const id of idsAModificar) {
+                const prod = localProductos[id];
+                let newCats = [...(prod.categorias || [])];
+                
+                // Reemplazar la categoría origen por la destino en el array
+                if (newCats.includes(origen)) {
+                    newCats = newCats.filter(c => c !== origen);
+                    if (!newCats.includes(destino)) {
+                        newCats.push(destino);
+                    }
+                }
+
+                // Si la categoría principal era origen, cambiarla por destino
+                let newCatPrincipal = prod.categoria === origen ? destino : prod.categoria;
+                if (!newCatPrincipal && newCats.length > 0) {
+                    newCatPrincipal = newCats[0];
+                }
+
+                const prodRef = window.activeCollections?.config 
+                    ? doc(db, window.activeCollections.config.productCollectionPath, id)
+                    : doc(db, "productos", id);
+
+                await updateDoc(prodRef, {
+                    categorias: newCats,
+                    categoria: newCatPrincipal
+                });
+                editados++;
+            }
+
+            showToast(`Se transfirieron ${editados} productos con éxito`, "success");
+            transferirForm.reset();
+        } catch (err) {
+            console.error(err);
+            showToast("Error al transferir productos", "error");
+        } finally {
+            btn.disabled = false;
+            spinner.classList.add('d-none');
+        }
     });
 }

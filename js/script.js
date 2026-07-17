@@ -275,6 +275,21 @@ function filtrarProductos(cat) {
     currentPage = 1;
     currentFilter = cat;
 
+    // Actualizar título de la categoría seleccionada
+    const tituloElement = document.getElementById('categoria-titulo');
+    if (tituloElement) {
+        if (cat === 'todos') {
+            tituloElement.textContent = "Todos los productos";
+        } else {
+            const categoriaInfo = (categoriasDB || []).find(c => c.nombre.toLowerCase() === cat.toLowerCase());
+            if (categoriaInfo) {
+                tituloElement.textContent = `${categoriaInfo.icono} ${categoriaInfo.nombre}`;
+            } else {
+                tituloElement.textContent = cat;
+            }
+        }
+    }
+
     // 1. Filter products by search, price, and active status
     let productosPotenciales = productos.filter(p => p.activo !== false);
     if (searchTerm) {
@@ -702,9 +717,8 @@ function initMapaEnvios() {
     const mapaOverlay = document.getElementById('mapaEnviosOverlay');
     const mapaModal = document.getElementById('mapaEnviosModal');
     const mapaClose = document.getElementById('mapaEnviosClose');
-    const btnMapaEnvios = document.getElementById('btn-mapa-envios');
 
-    if (!mapaOverlay || !mapaModal || !btnMapaEnvios) return;
+    if (!mapaOverlay || !mapaModal) return;
 
     const toggleMapa = () => {
         const isActive = mapaModal.classList.contains('active');
@@ -719,7 +733,10 @@ function initMapaEnvios() {
         }
     };
 
-    btnMapaEnvios.addEventListener('click', toggleMapa);
+    document.querySelectorAll('.trigger-mapa-envios').forEach(btn => {
+        btn.addEventListener('click', toggleMapa);
+    });
+    
     if (mapaClose) mapaClose.addEventListener('click', toggleMapa);
     mapaOverlay.addEventListener('click', toggleMapa);
 }

@@ -244,6 +244,32 @@
             </div>
         </section>
 
+        <!-- Transferir Categoría -->
+        <section class="admin-card">
+            <h2><i class="fas fa-exchange-alt"></i> Transferir Productos entre Categorías</h2>
+            <p style="font-size: 0.9rem; color: #718096; margin-bottom: 15px;">Mueve todos los productos asociados a una categoría hacia otra categoría diferente.</p>
+            <form id="transferirCategoriaForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transOrigen">Categoría Origen</label>
+                        <select id="transOrigen" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: white;">
+                            <option value="">Selecciona origen...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transDestino">Categoría Destino</label>
+                        <select id="transDestino" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: white;">
+                            <option value="">Selecciona destino...</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-principal w-100" id="transferirBtn" style="background-color: var(--naranja-acento); box-shadow: 0 4px 12px rgba(252, 132, 3, 0.2); margin-top: 10px;">
+                    <span id="transBtnText">Transferir Productos</span>
+                    <i class="fas fa-spinner fa-spin d-none" id="transferirSpinner"></i>
+                </button>
+            </form>
+        </section>
+
         <!-- Listado de Productos -->
         <section class="admin-card">
             <h2><i class="fas fa-box-open"></i> Productos Cargados</h2>

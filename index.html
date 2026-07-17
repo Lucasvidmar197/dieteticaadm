@@ -43,14 +43,19 @@
             <a href="https://www.instagram.com/dietetica.vitaminad/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
             <div style="flex: 1;"></div>
             <div class="spacer"></div>
-         </div>
+        </div>
     </header>
 
     <!-- Espacio para compensar el header fixed -->
     <div class="header-spacer"></div>
 
     <div class="sub-header-content">
-        <p class="promo-text">Hacemos envíos gratis en compras superiores a $40.000. Si tu pedido es antes de las 12:00 hs, Lo recibís en el dia!</p>
+        <p class="promo-text">Hacemos envíos gratis en compras superiores a $40.000. Revisá ahora si estás en la zona amarilla y disfrutá el pedido sin costo!</p>
+        <div style="margin-top: 5px; margin-bottom: 15px;">
+            <a href="javascript:void(0)" class="trigger-mapa-envios" style="color: var(--verde-principal); font-weight: 700; text-decoration: underline; font-size: 0.95rem; display: inline-block;">
+                <i class="fas fa-motorcycle" style="margin-right: 6px;"></i>Ver áreas de entrega sin costo
+            </a>
+        </div>
         <div class="header-bottom-bar">
             <ul class="bottom-nav-links">
                 <li><a href="#">Inicio</a></li>
@@ -63,15 +68,6 @@
             </ul>
         </div>
     </div>
-
-    <!-- ─── ABOUT ─── -->
-    <section class="about-section">
-        <h1>Tu rincón natural</h1>
-        <p>En <strong>Vitamina D Dietética</strong> nos apasiona promover un estilo de vida saludable. Ofrecemos la mejor selección de productos naturales, frutos secos, cereales, suplementos y opciones sin TACC. Nuestro objetivo es brindarte calidad y atención personalizada para que encuentres todo lo que necesitas para tu bienestar.</p>
-        <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20quiero%20hacer%20un%20pedido." target="_blank" class="btn-principal">
-            Hacer un pedido ahora
-        </a>
-    </section>
 
     <!-- ─── PRODUCTOS ─── -->
     <section class="promos-section" id="promos">
@@ -104,6 +100,8 @@
             </aside>
             
             <main class="shop-main">
+                <h2 id="categoria-titulo" style="font-size: 1.8rem; color: var(--verde-principal); margin-bottom: 25px; font-family: 'Playfair Display', serif; text-align: center;">Todos los productos</h2>
+                
                 <div class="search-container" style="display: none;">
                     <input type="search" id="buscador" placeholder="Buscar productos por nombre...">
                 </div>
@@ -118,6 +116,15 @@
                 </div>
             </main>
         </div>
+    </section>
+
+    <!-- ─── ABOUT ─── -->
+    <section class="about-section">
+        <h1>Tu rincón natural</h1>
+        <p>En <strong>Vitamina D Dietética</strong> nos apasiona promover un estilo de vida saludable. Ofrecemos la mejor selección de productos naturales, frutos secos, cereales, suplementos y opciones sin TACC. Nuestro objetivo es brindarte calidad y atención personalizada para que encuentres todo lo que necesitas para tu bienestar.</p>
+        <a href="https://wa.me/5491144468486?text=Hola!%20Vengo%20de%20la%20p%C3%A1gina%20web%20y%20quiero%20hacer%20un%20pedido." target="_blank" class="btn-principal">
+            Hacer un pedido ahora
+        </a>
     </section>
 
     <!-- ─── MAPA ENVIOS MODAL ─── -->
@@ -272,14 +279,16 @@
 
     <!-- ─── MAPA ─── -->
     <section class="mapa-section" id="mapa">
+        <div style="margin-bottom: 40px; text-align: center;">
+            <h2>Áreas de entrega sin costo</h2>
+            <button class="btn-principal trigger-mapa-envios" style="margin-top: 15px;" id="btn-mapa-envios"><i class="fas fa-motorcycle" style="margin-right: 8px;"></i>Ver áreas de entrega sin costo</button>
+        </div>
+
         <h2>Visitanos</h2>
         <p><i class="fas fa-map-marker-alt" style="color: var(--verde-principal);"></i> Nicolás Videla 147, B1878, Quilmes, PBA.</p>
         <div class="map-container">
             <iframe src="https://maps.google.com/maps?q=Nicol%C3%A1s%20Videla%20147,%20Quilmes,%20Provincia%20de%20Buenos%20Aires&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
-        
-        <h2 style="margin-top: 40px;">Áreas de entrega sin costo</h2>
-        <button class="btn-principal" style="margin-top: 15px;" id="btn-mapa-envios"><i class="fas fa-motorcycle" style="margin-right: 8px;"></i>Ver áreas de entrega sin costo</button>
     </section>
 
     <!-- ─── MÉTODOS DE PAGO ─── -->
